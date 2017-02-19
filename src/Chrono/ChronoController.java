@@ -71,16 +71,16 @@ public class ChronoController implements ActionListener {
 			//
 		}
 		else if(e.getActionCommand().startsWith("NUM")) {
-			//
+			//Need
 		}
 		else if(e.getActionCommand().startsWith("CLR")) {
-			//
+			//Need
 		}
 		else if(e.getActionCommand().startsWith("SWAP")) {
 			//
 		}
 		else if(e.getActionCommand().startsWith("DNF")) {
-			//
+			//Need
 		}
 		else if(e.getActionCommand().startsWith("TRIG")) {
 			//
