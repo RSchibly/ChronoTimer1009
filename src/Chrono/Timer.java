@@ -1,3 +1,4 @@
+package Chrono;
 public class Timer {
 	private boolean isRunning;
 
