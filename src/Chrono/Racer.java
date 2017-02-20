@@ -40,4 +40,18 @@ public class Racer {
 		return ret;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Racer) {
+			Racer ptr = (Racer) obj;
+			return ptr.racerNumber == this.racerNumber;
+		}
+		else return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return racerNumber * time.hashCode() * timesRaced.hashCode();
+	}
+
 }
