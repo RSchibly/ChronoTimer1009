@@ -1,19 +1,37 @@
 package Chrono;
 public class Timer {
-	private boolean isRunning;
+	private double start;
+	private double end;
+	private boolean DNF;
 
 	public Timer() {
-		this.isRunning = false;
+		DNF = true;
+		start = 0;
+		end = 0;
 	}
 
-	public double Start() {
-		System.out.println("Starting Timer");
-		isRunning = true;
-		return System.nanoTime();
+	public void Start() {
+		start = System.nanoTime();
 	}
-
+	public void Stop() {
+		DNF = false;
+		end = System.nanoTime();
+	}
+	//overloaded, used for timer button
+	public void start(double offest){
+		start = System.nanoTime() + offest;
+	}
+	public double getStart(){
+		return start;
+	}
+	public double getEnd(){
+		return end;
+	}
+	public double getTime(){
+		return (end - start)/1000000000.0;
+	}
 	//Needs a start time and end time
-	public void getTime(double end, double start) {
+	public void printTime() {
 		end = System.nanoTime() - start;
 		//Converts to seconds
 		double seconds = end / 1000000000.0;
@@ -41,23 +59,9 @@ public class Timer {
 		else System.out.print("00:");
 		
 		//Seconds
-		if(numberOfSeconds >= 1) System.out.printf("%.9f", numberOfSeconds);
+		if(numberOfSeconds >= 1) System.out.printf("%.2f", numberOfSeconds);
 		else System.out.print("00:");  
 	}
 
-	public double Stop() {
-		System.out.println("Ending Timer");
-		isRunning = false;
-		return System.nanoTime();
-	}
-	
-	public double reset(){
-		isRunning = true;
-		return System.nanoTime();
-	}
-	
-	public boolean isRunning(){
-		return isRunning;
-	}
 }
 

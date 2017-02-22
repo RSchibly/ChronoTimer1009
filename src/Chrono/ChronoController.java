@@ -240,13 +240,14 @@ public class ChronoController implements ActionListener {
 	}
 	private void cmd_error(String errorMessage, boolean ignored) {
 		//Add to event log and/or do something with error
-		System.out.println(errorMessage);
+		System.err.println(errorMessage);
 	}
 	
 	//POWER
 	//States allowed: ALL
 	//(if off) turn system on, enter initial state.
 	//(if on) turn system off, but stay in simulator.
+	//Possibly moving to Timer
 	private void power() {
 		//TODO Sprint 1, but this will probably need to be moved to ChronoTimer?
 	}
@@ -415,7 +416,7 @@ public class ChronoController implements ActionListener {
 	//The next competitor to finish will not finish.
 	private void dnf() {
 		//TODO Sprint 1
-		//m_run.dnf()?
+		m_run.dnf();
 	}
 	
 	//TRIG <num>
@@ -429,7 +430,7 @@ public class ChronoController implements ActionListener {
 		}
 		
 		if(m_channels[channel-1].isEnabled()) {
-			//m_run.start()?
+			m_run.triggerChannel(m_channels[channel-1]);
 		}
 	}
 	
@@ -438,6 +439,6 @@ public class ChronoController implements ActionListener {
 	//Discard any racers current start time and put racer back in queue as next to start.
 	private void cancel() {
 		//TODO Sprint 1
-		//m_run.cancel()?
+		m_run.cancel();
 	}
 }

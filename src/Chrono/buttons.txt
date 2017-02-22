@@ -1,3 +1,5 @@
+SPRINT 1 BUTTONS
+
 POWER - Turn system on
 EXIT - Exit the simulator/Turn system off
 RESET - Reset the system to its initial state
