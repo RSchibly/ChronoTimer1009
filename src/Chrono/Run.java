@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import Chrono.Channel.TriggerType;
-import Chrono.ChronoController.Competition;
+import Chrono.Controller.Competition;
 
 public class Run {
 

@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 import Chrono.Channel.Sensor;
 
-public class ChronoController implements ActionListener {
+public class Controller implements ActionListener {
 	private static final int NUM_CHANNELS = 8;
 	
 	public enum ChronoState {INITIAL, RACING}
@@ -21,7 +21,7 @@ public class ChronoController implements ActionListener {
 	private int runID;
 	private ArrayList<Run> runHistory;
 	
-	public ChronoController() {
+	public Controller() {
 		running = true;
 		m_state = ChronoState.INITIAL;
 		m_comp = Competition.IND;
@@ -235,10 +235,10 @@ public class ChronoController implements ActionListener {
 		this.running = running;
 	}
 	
-	private void cmd_error(String errorMessage) {
+	public void cmd_error(String errorMessage) {
 		cmd_error(errorMessage, true);
 	}
-	private void cmd_error(String errorMessage, boolean ignored) {
+	public void cmd_error(String errorMessage, boolean ignored) {
 		//Add to event log and/or do something with error
 		System.err.println(errorMessage);
 	}
