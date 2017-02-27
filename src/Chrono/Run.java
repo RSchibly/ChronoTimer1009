@@ -12,11 +12,12 @@ public class Run {
 	private LinkedList<Racer> readyQ, runningQ, finishedQ;
 	private Competition raceType;
 	private int id;
+	private Controller parentController;
 
-	public Run(int id, Competition raceType) {
+	public Run(int id, Competition raceType, Controller parent) {
 		this.id = id;
 		this.raceType = raceType;
-
+		this.parentController = parent;
 		this.readyQ = new LinkedList<Racer>();
 		this.runningQ = new LinkedList<Racer>();
 		this.finishedQ = new LinkedList<Racer>();
@@ -38,15 +39,21 @@ public class Run {
 			if (c.getTriggerType() == TriggerType.START) {
 				if (readyQ.isEmpty()) {
 					// TODO Pipe through chronoController
-					System.err.println("No racers to start");
+					parentController.cmd_error("No racers to start");
+					return;
 				}
-				runningQ.push(readyQ.pop());
+				Racer r = readyQ.removeFirst();
+				runningQ.addLast(r);
+				System.out.println("Starting racer: " + r.getNumber());
 			} else if (c.getTriggerType() == TriggerType.FINISH) {
 				if (runningQ.isEmpty()) {
 					// TODO Pipe through chronoController
-					System.err.println("No racers running");
+					parentController.cmd_error("No racers to end");
+					return;
 				}
-				finishedQ.addLast(runningQ.removeFirst());
+				Racer r = runningQ.removeFirst();
+				finishedQ.addLast(r);
+				System.out.println("Ending racer " + r.getNumber());
 			}
 		} else if (raceType == Competition.GRP) {
 			// TODO later
@@ -57,14 +64,16 @@ public class Run {
 		}
 	}
 
-	public void addRacer(Racer racer) {
+	public boolean addRacer(Racer racer) {
 		if (readyQ.contains(racer) || runningQ.contains(racer) || finishedQ.contains(racer)) {
-			// Error: racer already exists
+			// Racer already exists
+			return false;
 		} else
 			readyQ.addLast(racer);
+		return true;
 	}
 
-	public void removeRacer(Racer racer) {
+	public boolean removeRacer(Racer racer) {
 		if (readyQ.contains(racer))
 			readyQ.remove(racer);
 		else if (runningQ.contains(racer))
@@ -72,8 +81,11 @@ public class Run {
 		else if (finishedQ.contains(racer))
 			finishedQ.remove(racer);
 		else {
-			// Error: racer does not exist
+			//Racer does not exist
+			return false;
 		}
+		
+		return true;
 	}
 
 	public int getID() {

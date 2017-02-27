@@ -216,7 +216,7 @@ public class Controller implements ActionListener {
 		else if(e.getActionCommand().startsWith("FINISH")) trigger(2);
 		else if(e.getActionCommand().startsWith("CANCEL")) cancel();
 		else {
-			//Error: Unknown command
+			cmd_error("Command not recognized.");
 		}
 		
 	}
@@ -250,9 +250,9 @@ public class Controller implements ActionListener {
 		else{
 			//resets system to initial state
 			//Basically like a "restart" on a computer
+			running = true;
 			reset();
 			System.out.println("Powering on...");
-			running = true;
 		}
 	}
 	
@@ -308,7 +308,13 @@ public class Controller implements ActionListener {
 			return;
 		}
 		m_channels[channel-1].setEnabled(!m_channels[channel-1].isEnabled());
-		System.out.println("Toggling channel: " + channel);
+		if(m_channels[channel - 1].isEnabled()){
+			System.out.println("Enabled channel: " + channel);
+		}
+		else{
+			System.out.println("Disabled channel: " + channel);
+		}
+		
 	}
 	
 	//CONN <sensor> <num>
@@ -388,7 +394,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		
-		m_run = new Run(runID, m_comp);
+		m_run = new Run(runID, m_comp, this);
 		m_state = ChronoState.RACING;
 		System.out.println("Creating new run...");
 	}
@@ -449,8 +455,12 @@ public class Controller implements ActionListener {
 			cmd_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
-		System.out.println("Adding racer: " + number);
-		m_run.addRacer(new Racer(number));
+		if(m_run.addRacer(new Racer(number))){
+			System.out.println("Adding racer: " + number);
+		}
+		else{
+			cmd_error("Failed to add racer: " + number);
+		}
 	}
 	
 	//CLR <number>
@@ -466,8 +476,13 @@ public class Controller implements ActionListener {
 			cmd_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
-		System.out.println("Clearing racer: " + number);
-		m_run.removeRacer(new Racer(number));
+		
+		if(m_run.removeRacer(new Racer(number))){
+			System.out.println("Clearing racer: " + number);
+		}
+		else{
+			cmd_error("Failed to clear racer: " + number);
+		}
 	}
 	
 	//SWAP ??
@@ -520,6 +535,10 @@ public class Controller implements ActionListener {
 			System.out.println("Tigger channel: " + channel);
 			m_run.triggerChannel(m_channels[channel-1]);
 		}
+		else{
+			cmd_error("Channel currently disabled: " + channel);
+		}
+		
 	}
 	
 	//CANCEL

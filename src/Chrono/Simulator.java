@@ -29,7 +29,7 @@ public class Simulator {
 		// Main event loop
 		while (scan.hasNextLine()) {
 			int id = 0;
-			String cmd = scan.nextLine();
+			String cmd = scan.nextLine().toUpperCase();
 			if(isFile){
 				System.out.println(cmd);
 				System.out.println();
