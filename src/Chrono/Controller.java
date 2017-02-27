@@ -9,7 +9,7 @@ import Chrono.Channel.Sensor;
 public class Controller implements ActionListener {
 	private static final int NUM_CHANNELS = 8;
 	
-	public enum ChronoState {INITIAL, RACING}
+	public enum ChronoState {OFF, INITIAL, RACING}
 	public enum Competition {IND, PARIND, GRP, PARGRP}
 	
 	private boolean running;
@@ -22,14 +22,8 @@ public class Controller implements ActionListener {
 	private ArrayList<Run> runHistory;
 	
 	public Controller() {
-		running = true;
-		m_state = ChronoState.INITIAL;
-		m_comp = Competition.IND;
-		m_channels = new Channel[NUM_CHANNELS];
-		m_run = null;
-		runID = 1;
-		runHistory = new ArrayList<Run>();
-		for(int i = 0; i < NUM_CHANNELS; i++) m_channels[i] = new Channel(i+1);
+		running = false;
+		m_state = ChronoState.OFF;
 	}
 	
 	@Override
@@ -249,22 +243,33 @@ public class Controller implements ActionListener {
 	//(if on) turn system off, but stay in simulator.
 	//Possibly moving to Timer
 	private void power() {
-		//TODO Sprint 1, but this will probably need to be moved to ChronoTimer?
+		if(running){
+			running = false;
+			System.out.println("Powering off...");
+		}
+		else{
+			//resets system to initial state
+			//Basically like a "restart" on a computer
+			reset();
+			System.out.println("Powering on...");
+			running = true;
+		}
 	}
 	
 	//EXIT
 	//States allowed: ALL
 	//Exit the simulator.
 	private void exit() {
-		//TODO Sprint 1
-		running = false;
+		//Kill everything/self
+		//Basically like a "shutdown" on a computer
+		System.err.println("There goes your System32...");
+		System.exit(0);
 	}
 	
 	//RESET
 	//States allowed: ALL
 	//Resets the System to initial state and resets everything.
 	private void reset() {
-		//TODO Sprint 1
 		m_state = ChronoState.INITIAL;
 		m_comp = Competition.IND;
 		m_channels = new Channel[NUM_CHANNELS];
@@ -292,6 +297,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		m_channels[channel-1].setEnabled(!m_channels[channel-1].isEnabled());
+		System.out.println("Toggling channel: " + channel);
 	}
 	
 	//CONN <sensor> <num>
@@ -309,6 +315,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		
+		System.out.println("Connecting channel: " + channel);
 		m_channels[channel-1].connect(sensor);
 	}
 	
@@ -327,6 +334,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		
+		System.out.println("Disconnect channel: " + channel);
 		m_channels[channel-1].disconnect();
 	}
 
@@ -340,6 +348,7 @@ public class Controller implements ActionListener {
 		}
 		
 		m_comp = type;
+		System.out.println("Event competition: " + type.toString());
 	}
 	
 	//NEWRUN
@@ -355,6 +364,7 @@ public class Controller implements ActionListener {
 		
 		m_run = new Run(runID, m_comp);
 		m_state = ChronoState.RACING;
+		System.out.println("Creating new run...");
 	}
 	
 	//ENDRUN
@@ -370,6 +380,7 @@ public class Controller implements ActionListener {
 		
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
+		System.out.println("Ending current run...");
 	}
 	
 	//PRINT <run>
@@ -393,6 +404,7 @@ public class Controller implements ActionListener {
 	//Set <number> as the next competitor to start.
 	private void num(int number) {
 		//TODO Sprint 1
+		System.out.println("Adding racer: " + number);
 		m_run.addRacer(new Racer(number));
 	}
 	
@@ -401,6 +413,7 @@ public class Controller implements ActionListener {
 	//Clear <number> from the run.
 	private void clr(int number) {
 		//TODO Sprint 1
+		System.out.println("Clearing racer: " + number);
 		m_run.removeRacer(new Racer(number));
 	}
 	
@@ -416,7 +429,8 @@ public class Controller implements ActionListener {
 	//The next competitor to finish will not finish.
 	private void dnf() {
 		//TODO Sprint 1
-		m_run.dnf();
+		int number = m_run.dnf();
+		System.out.println("Racer DNF: " + number);
 	}
 	
 	//TRIG <num>
@@ -430,15 +444,17 @@ public class Controller implements ActionListener {
 		}
 		
 		if(m_channels[channel-1].isEnabled()) {
+			System.out.println("Tigger channel: " + channel);
 			m_run.triggerChannel(m_channels[channel-1]);
 		}
 	}
 	
 	//CANCEL
 	//States allowed: RACING
-	//Discard any racers current start time and put racer back in queue as next to start.
+	//Discard a racer's current start time and put racer back in queue as next to start.
 	private void cancel() {
 		//TODO Sprint 1
-		m_run.cancel();
+		int number = m_run.cancel();
+		System.out.println("Cancelling racer: " + number);
 	}
 }

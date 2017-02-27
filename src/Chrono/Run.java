@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import Chrono.Channel.TriggerType;
 import Chrono.Controller.Competition;
 
+//Has all of our Run logic
 public class Run {
 
 	private LinkedList<Racer> readyQ, runningQ, finishedQ;
@@ -21,11 +22,16 @@ public class Run {
 		this.finishedQ = new LinkedList<Racer>();
 	}
 
-	public void dnf() {
-		finishedQ.addLast(runningQ.removeFirst());
+	public int dnf() {
+		Racer r = runningQ.removeFirst();
+		finishedQ.addLast(r);
+		return r.getNumber();
 	}
-	public void cancel(){
-		readyQ.addFirst(runningQ.removeLast());
+	
+	public int cancel(){
+		Racer r = runningQ.removeLast();
+		readyQ.addFirst(r);
+		return r.getNumber();
 	}
 	public void triggerChannel(Channel c) {
 		if (raceType == Competition.IND) {

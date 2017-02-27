@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class Simulator {
 
 	public static void main(String[] args) throws InterruptedException {
+		boolean isFile = false;
 		String fileFile = "transactions.txt";
 		Scanner scan = new Scanner (System.in);
 		System.out.print("Are you entering a file for this simulation? (Y/N)");
@@ -16,6 +17,7 @@ public class Simulator {
 		if(resp.toLowerCase().charAt(0) == 'y'){
 			try {
 				scan = new Scanner(new File(fileFile));
+				isFile = true;
 			} catch (FileNotFoundException e) {
 				System.err.println("File Not Found");
 				scan = new Scanner(System.in);
@@ -25,14 +27,18 @@ public class Simulator {
 		Controller controller = new Controller();
 
 		// Main event loop
-		while (controller.isRunning() && scan.hasNextLine()) {
+		while (scan.hasNextLine()) {
 			int id = 0;
 			String cmd = scan.nextLine();
-			System.out.println(cmd);
-			System.out.println();
+			if(isFile){
+				System.out.println(cmd);
+				System.out.println();
+			}
+
 			ActionEvent cmdAction = new ActionEvent(scan, id, cmd);
 			id++;
 			controller.actionPerformed(cmdAction);
+			
 		}
 
 	}
