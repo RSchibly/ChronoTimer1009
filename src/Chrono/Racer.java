@@ -1,13 +1,10 @@
 package Chrono;
-import java.util.ArrayList;
 
 public class Racer {
 	private int racerNumber;
 	private Timer time;
-	private ArrayList<RaceTime> timesRaced;
-
+	
 	public Racer(int racerNumber) {
-		timesRaced = new ArrayList<RaceTime>();
 		this.racerNumber = racerNumber;
 		time = new Timer();
 	}
@@ -19,15 +16,7 @@ public class Racer {
 	public Timer getTimer() {
 		return time;
 	}
-
-	public ArrayList<RaceTime> getTimesRaced() {
-		return timesRaced;
-	}
-
-	public void addRaceTime(RaceTime race) {
-		timesRaced.add(race);
-	}
-
+	
 	public String toString() {
 		//TODO possibly?
 		return "TODO";
@@ -44,7 +33,7 @@ public class Racer {
 
 	@Override
 	public int hashCode() {
-		return racerNumber * time.hashCode() * timesRaced.hashCode();
+		return racerNumber * time.hashCode();
 	}
 
 }

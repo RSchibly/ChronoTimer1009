@@ -1,20 +1,22 @@
 package Chrono;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import Chrono.Channel.Sensor;
 
 public class Controller implements ActionListener {
 	private static final int NUM_CHANNELS = 8;
 	
-	public enum ChronoState {INITIAL, RACING}
+	public enum ChronoState {OFF, INITIAL, RACING}
 	public enum Competition {IND, PARIND, GRP, PARGRP}
 	
 	private boolean running;
 	private ChronoState m_state;
 	private Competition m_comp;
+	
+	//Holds the offset time
+	private LocalTime m_sysTime;
 	
 	private Channel[] m_channels;
 	private Run m_run;
@@ -22,14 +24,8 @@ public class Controller implements ActionListener {
 	private ArrayList<Run> runHistory;
 	
 	public Controller() {
-		running = true;
-		m_state = ChronoState.INITIAL;
-		m_comp = Competition.IND;
-		m_channels = new Channel[NUM_CHANNELS];
-		m_run = null;
-		runID = 1;
-		runHistory = new ArrayList<Run>();
-		for(int i = 0; i < NUM_CHANNELS; i++) m_channels[i] = new Channel(i+1);
+		running = false;
+		m_state = ChronoState.OFF;
 	}
 	
 	@Override
@@ -52,7 +48,7 @@ public class Controller implements ActionListener {
 			}
 			
 			try{
-				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Integer.parseInt(timeArgs[2]));
+				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]));
 			}
 			catch(NumberFormatException ex) {
 				cmd_error("Could not parse arguments in command \""+e.getActionCommand()+"\"");
@@ -139,6 +135,7 @@ public class Controller implements ActionListener {
 		else if(e.getActionCommand().startsWith("PRINT")) {
 			//PRINT <run>
 			String[] cmdArgs = e.getActionCommand().split(" ");
+			//TODO later: Default no args to current run if exists
 			if(cmdArgs.length < 2) {
 				cmd_error("Incorrect number of arguments in command \""+e.getActionCommand()+"\"");
 				return;
@@ -222,7 +219,7 @@ public class Controller implements ActionListener {
 		else if(e.getActionCommand().startsWith("FINISH")) trigger(2);
 		else if(e.getActionCommand().startsWith("CANCEL")) cancel();
 		else {
-			//Error: Unknown command
+			cmd_error("Command not recognized.");
 		}
 		
 	}
@@ -249,26 +246,41 @@ public class Controller implements ActionListener {
 	//(if on) turn system off, but stay in simulator.
 	//Possibly moving to Timer
 	private void power() {
-		//TODO Sprint 1, but this will probably need to be moved to ChronoTimer?
+		if(running){
+			running = false;
+			System.out.println("Powering off...");
+		}
+		else{
+			//resets system to initial state
+			//Basically like a "restart" on a computer
+			running = true;
+			reset();
+			System.out.println("Powering on...");
+		}
 	}
 	
 	//EXIT
 	//States allowed: ALL
 	//Exit the simulator.
 	private void exit() {
-		//TODO Sprint 1
-		running = false;
+		//NUKING SELF
+		System.err.println("There goes your System32...");
+		System.exit(0);
 	}
 	
 	//RESET
 	//States allowed: ALL
 	//Resets the System to initial state and resets everything.
 	private void reset() {
-		//TODO Sprint 1
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		m_state = ChronoState.INITIAL;
 		m_comp = Competition.IND;
 		m_channels = new Channel[NUM_CHANNELS];
 		m_run = null;
+		m_sysTime = null;
 		runID = 1;
 		runHistory = new ArrayList<Run>();
 		for(int i = 0; i < NUM_CHANNELS; i++) m_channels[i] = new Channel(i+1);
@@ -277,21 +289,33 @@ public class Controller implements ActionListener {
 	//TIME <hour>:<min>:<sec>
 	//States allowed: ALL
 	//Sets(advances) the System time to the time specified(so there is no wait for test output).
-	private void time(int hour, int min, int sec) {
+	private void time(int hour, int min, double sec) {
 		//TODO Sprint 1
 		//Possible use as an offset and pass System time + offset to relevant functions?
 		//Maybe this command is unnecessary
+		m_sysTime = LocalTime.of(hour, min, (int) sec);
 	}
 	
 	//TOG <channel>
 	//States allowed: ALL
 	//Toggle the state of the channel specified.
 	private void toggle(int channel) {
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		if(channel < 1 || channel > NUM_CHANNELS) {
 			cmd_error("Channel out of range.");
 			return;
 		}
 		m_channels[channel-1].setEnabled(!m_channels[channel-1].isEnabled());
+		if(m_channels[channel - 1].isEnabled()){
+			System.out.println("Enabled channel: " + channel);
+		}
+		else{
+			System.out.println("Disabled channel: " + channel);
+		}
+		
 	}
 	
 	//CONN <sensor> <num>
@@ -299,6 +323,10 @@ public class Controller implements ActionListener {
 	//Connect a sensor(of type specified) to the channel specified.
 	private void connect(Sensor sensor, int channel) {
 		//TODO Later
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		if(channel < 1 || channel > NUM_CHANNELS) {
 			cmd_error("Channel out of range.");
 			return;
@@ -309,6 +337,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		
+		System.out.println("Connecting channel: " + channel);
 		m_channels[channel-1].connect(sensor);
 	}
 	
@@ -317,6 +346,10 @@ public class Controller implements ActionListener {
 	//Disconnect a sensor from the channel specified.
 	private void disconnect(int channel) {
 		//TODO Later
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		if(channel < 1 || channel > NUM_CHANNELS) {
 			cmd_error("Channel out of range.");
 			return;
@@ -327,6 +360,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		
+		System.out.println("Disconnect channel: " + channel);
 		m_channels[channel-1].disconnect();
 	}
 
@@ -335,11 +369,16 @@ public class Controller implements ActionListener {
 	//Changes the current competition to specified type.
 	private void event(Competition type) {
 		//TODO Later
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		if(m_state != ChronoState.INITIAL) {
 			cmd_error("Cannot change competition type during a Run, must end current Run first.");
 		}
 		
 		m_comp = type;
+		System.out.println("Event competition: " + type.toString());
 	}
 	
 	//NEWRUN
@@ -347,14 +386,18 @@ public class Controller implements ActionListener {
 	//Create a new Run (must end a run first).
 	private void new_run() {
 		//TODO Sprint 1
-		
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		if(m_state != ChronoState.INITIAL) {
 			cmd_error("A Run is already in progress, must end the current Run first.");
 			return;
 		}
 		
-		m_run = new Run(runID, m_comp);
+		m_run = new Run(runID, m_comp, this);
 		m_state = ChronoState.RACING;
+		System.out.println("Creating new run...");
 	}
 	
 	//ENDRUN
@@ -362,7 +405,10 @@ public class Controller implements ActionListener {
 	//Done with the Run.
 	private void end_run() {
 		//TODO Sprint 1
-
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		if(m_state != ChronoState.RACING) {
 			cmd_error("A Run is not in progress, must start a Run first.");
 			return;
@@ -370,6 +416,7 @@ public class Controller implements ActionListener {
 		
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
+		System.out.println("Ending current run...");
 	}
 	
 	//PRINT <run>
@@ -377,6 +424,10 @@ public class Controller implements ActionListener {
 	//Print the run specified on stdout.
 	private void print(int run) {
 		//TODO Later
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		//print runHistory.get(run);
 	}
 	
@@ -385,6 +436,10 @@ public class Controller implements ActionListener {
 	//Export the run specified in XML to file "RUN<"+runID+">.xml"
 	private void export(int run) {
 		//TODO Later
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 		//export runHistory.get(run);
 	}
 	
@@ -393,7 +448,20 @@ public class Controller implements ActionListener {
 	//Set <number> as the next competitor to start.
 	private void num(int number) {
 		//TODO Sprint 1
-		m_run.addRacer(new Racer(number));
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
+		if(m_state != ChronoState.RACING) {
+			cmd_error("A Run is not in progress, must start a Run first.");
+			return;
+		}
+		if(m_run.addRacer(new Racer(number))){
+			System.out.println("Adding racer: " + number);
+		}
+		else{
+			cmd_error("Failed to add racer: " + number);
+		}
 	}
 	
 	//CLR <number>
@@ -401,7 +469,21 @@ public class Controller implements ActionListener {
 	//Clear <number> from the run.
 	private void clr(int number) {
 		//TODO Sprint 1
-		m_run.removeRacer(new Racer(number));
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
+		if(m_state != ChronoState.RACING) {
+			cmd_error("A Run is not in progress, must start a Run first.");
+			return;
+		}
+		
+		if(m_run.removeRacer(new Racer(number))){
+			System.out.println("Clearing racer: " + number);
+		}
+		else{
+			cmd_error("Failed to clear racer: " + number);
+		}
 	}
 	
 	//SWAP ??
@@ -409,6 +491,10 @@ public class Controller implements ActionListener {
 	//This is a stupid command.
 	private void swap() {
 		//TODO Later
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
 	}
 	
 	//DNF
@@ -416,7 +502,16 @@ public class Controller implements ActionListener {
 	//The next competitor to finish will not finish.
 	private void dnf() {
 		//TODO Sprint 1
-		m_run.dnf();
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
+		if(m_state != ChronoState.RACING) {
+			cmd_error("A Run is not in progress, must start a Run first.");
+			return;
+		}
+		int number = m_run.dnf();
+		System.out.println("Racer DNF: " + number);
 	}
 	
 	//TRIG <num>
@@ -424,21 +519,43 @@ public class Controller implements ActionListener {
 	//Trigger channel <num>
 	private void trigger(int channel) {
 		//TODO Sprint 1
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
+		if(m_state != ChronoState.RACING) {
+			cmd_error("A Run is not in progress, must start a Run first.");
+			return;
+		}
 		if(channel < 1 || channel > NUM_CHANNELS) {
 			cmd_error("Channel out of range.");
 			return;
 		}
 		
 		if(m_channels[channel-1].isEnabled()) {
-			m_run.triggerChannel(m_channels[channel-1]);
+			System.out.println("Tigger channel: " + channel);
+			m_run.triggerChannel(m_channels[channel-1], m_sysTime);
 		}
+		else{
+			cmd_error("Channel currently disabled: " + channel);
+		}
+		
 	}
 	
 	//CANCEL
 	//States allowed: RACING
-	//Discard any racers current start time and put racer back in queue as next to start.
+	//Discard a racer's current start time and put racer back in queue as next to start.
 	private void cancel() {
 		//TODO Sprint 1
-		m_run.cancel();
+		if(!running){
+			cmd_error("System not running.");
+			return;
+		}
+		if(m_state != ChronoState.RACING) {
+			cmd_error("A Run is not in progress, must start a Run first.");
+			return;
+		}
+		int number = m_run.cancel();
+		System.out.println("Cancelling racer: " + number);
 	}
 }
