@@ -1,9 +1,8 @@
 package Chrono;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import Chrono.Channel.Sensor;
 
 public class Controller implements ActionListener {
@@ -15,6 +14,9 @@ public class Controller implements ActionListener {
 	private boolean running;
 	private ChronoState m_state;
 	private Competition m_comp;
+	
+	//Holds the offset time
+	private LocalTime m_sysTime;
 	
 	private Channel[] m_channels;
 	private Run m_run;
@@ -46,7 +48,7 @@ public class Controller implements ActionListener {
 			}
 			
 			try{
-				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Integer.parseInt(timeArgs[2]));
+				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]));
 			}
 			catch(NumberFormatException ex) {
 				cmd_error("Could not parse arguments in command \""+e.getActionCommand()+"\"");
@@ -133,6 +135,7 @@ public class Controller implements ActionListener {
 		else if(e.getActionCommand().startsWith("PRINT")) {
 			//PRINT <run>
 			String[] cmdArgs = e.getActionCommand().split(" ");
+			//TODO later: Default no args to current run if exists
 			if(cmdArgs.length < 2) {
 				cmd_error("Incorrect number of arguments in command \""+e.getActionCommand()+"\"");
 				return;
@@ -277,6 +280,7 @@ public class Controller implements ActionListener {
 		m_comp = Competition.IND;
 		m_channels = new Channel[NUM_CHANNELS];
 		m_run = null;
+		m_sysTime = null;
 		runID = 1;
 		runHistory = new ArrayList<Run>();
 		for(int i = 0; i < NUM_CHANNELS; i++) m_channels[i] = new Channel(i+1);
@@ -285,14 +289,11 @@ public class Controller implements ActionListener {
 	//TIME <hour>:<min>:<sec>
 	//States allowed: ALL
 	//Sets(advances) the System time to the time specified(so there is no wait for test output).
-	private void time(int hour, int min, int sec) {
+	private void time(int hour, int min, double sec) {
 		//TODO Sprint 1
 		//Possible use as an offset and pass System time + offset to relevant functions?
 		//Maybe this command is unnecessary
-		if(!running){
-			cmd_error("System not running.");
-			return;
-		}
+		m_sysTime = LocalTime.of(hour, min, (int) sec);
 	}
 	
 	//TOG <channel>
@@ -533,7 +534,7 @@ public class Controller implements ActionListener {
 		
 		if(m_channels[channel-1].isEnabled()) {
 			System.out.println("Tigger channel: " + channel);
-			m_run.triggerChannel(m_channels[channel-1]);
+			m_run.triggerChannel(m_channels[channel-1], m_sysTime);
 		}
 		else{
 			cmd_error("Channel currently disabled: " + channel);

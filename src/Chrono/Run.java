@@ -1,5 +1,6 @@
 package Chrono;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -34,7 +35,7 @@ public class Run {
 		readyQ.addFirst(r);
 		return r.getNumber();
 	}
-	public void triggerChannel(Channel c) {
+	public void triggerChannel(Channel c, LocalTime time) {
 		if (raceType == Competition.IND) {
 			if (c.getTriggerType() == TriggerType.START) {
 				if (readyQ.isEmpty()) {
@@ -43,6 +44,7 @@ public class Run {
 					return;
 				}
 				Racer r = readyQ.removeFirst();
+				r.getTimer().Start(time);
 				runningQ.addLast(r);
 				System.out.println("Starting racer: " + r.getNumber());
 			} else if (c.getTriggerType() == TriggerType.FINISH) {
@@ -52,6 +54,7 @@ public class Run {
 					return;
 				}
 				Racer r = runningQ.removeFirst();
+				r.getTimer().Stop(time);
 				finishedQ.addLast(r);
 				System.out.println("Ending racer " + r.getNumber());
 			}
