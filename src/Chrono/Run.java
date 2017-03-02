@@ -25,12 +25,20 @@ public class Run {
 	}
 
 	public int dnf() {
+		if(runningQ.isEmpty()) {
+			parentController.cmd_error("No racers currently running");
+			return -1;
+		}
 		Racer r = runningQ.removeFirst();
 		finishedQ.addLast(r);
 		return r.getNumber();
 	}
 	
 	public int cancel(){
+		if(runningQ.isEmpty()) {
+			parentController.cmd_error("No racers currently running");
+			return -1;
+		}
 		Racer r = runningQ.removeLast();
 		readyQ.addFirst(r);
 		return r.getNumber();

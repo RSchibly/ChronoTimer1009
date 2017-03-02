@@ -237,7 +237,7 @@ public class Controller implements ActionListener {
 	}
 	public void cmd_error(String errorMessage, boolean ignored) {
 		//Add to event log and/or do something with error
-		System.err.println(errorMessage);
+		System.out.println(errorMessage);
 	}
 	
 	//POWER
@@ -511,7 +511,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		int number = m_run.dnf();
-		System.out.println("Racer DNF: " + number);
+		if(number > 0) System.out.println("Racer DNF: " + number);
 	}
 	
 	//TRIG <num>
@@ -556,6 +556,6 @@ public class Controller implements ActionListener {
 			return;
 		}
 		int number = m_run.cancel();
-		System.out.println("Cancelling racer: " + number);
+		if(number > 0) System.out.println("Cancelling racer: " + number);
 	}
 }
