@@ -1,0 +1,12 @@
+SPRINT 1 BUTTONS
+
+POWER - Turn system on
+EXIT - Exit the simulator/Turn system off
+RESET - Reset the system to its initial state
+TIME - Used to set the time, EX: If you want the current time to be consistent with test input data.
+DNF - the run for a specific bib number is over, end time is DNF
+CANCEL - discards the current racer and puts the racer back at the front of the queue, next racer to start
+TOG - Toggle the state of the channel
+TRIG - Trigger channel
+START - when a racer starts, will have a time associated with
+FINISH - when a racer finishes, will have a time associated with
