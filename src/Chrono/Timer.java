@@ -29,7 +29,9 @@ public class Timer {
 	public String getTime(){
 		return (end.getHour()-start.getHour()) + ":" + (end.getMinute()-start.getMinute()) + ":" + (end.getNano()-start.getNano());
 	}
-	//Needs a start time and end time
+	
+//	
+//	//Needs a start time and end time
 //	public void printTime() {
 //		end = System.nanoTime() - start;
 //		//Converts to seconds

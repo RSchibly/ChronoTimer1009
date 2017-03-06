@@ -71,8 +71,38 @@ public class Run {
 		} else if (raceType == Competition.PARGRP) {
 			// TODO later
 		} else if (raceType == Competition.PARIND) {
-			// TODO later
+			if (c.getTriggerType() == TriggerType.START) {
+				//START two people at the same time
+				if (readyQ.isEmpty() || readyQ.size() < 2) {
+					// TODO Pipe through chronoController
+					parentController.cmd_error("No racers to start");
+					return;
+				}
+				Racer r1 = readyQ.removeFirst();
+				Racer r2 = readyQ.removeFirst();
+				r1.getTimer().Start(time);
+				r2.getTimer().Start(time);
+				runningQ.addLast(r1);
+				runningQ.addLast(r2);
+				System.out.println("Starting racer: " + r1.getNumber());
+				System.out.println("Starting racer: " + r2.getNumber());
+			} else if (c.getTriggerType() == TriggerType.FINISH) {
+				if (runningQ.isEmpty()) {
+					// TODO Pipe through chronoController
+					parentController.cmd_error("No racers to end");
+					return;
+				}
+				Racer r = runningQ.removeFirst();
+				r.getTimer().Stop(time);
+				finishedQ.addLast(r);
+				System.out.println("Ending racer " + r.getNumber());
+			}
+			
 		}
+	}
+	
+	public LinkedList<Racer> getFinishedQ(){
+		return finishedQ;
 	}
 
 	public boolean addRacer(Racer racer) {

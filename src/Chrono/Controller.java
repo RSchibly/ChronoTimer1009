@@ -14,6 +14,7 @@ public class Controller implements ActionListener {
 	private boolean running;
 	private ChronoState m_state;
 	private Competition m_comp;
+	private RunHistory m_runHistory;
 	
 	//Holds the offset time
 	private LocalTime m_sysTime;
@@ -24,6 +25,7 @@ public class Controller implements ActionListener {
 	private ArrayList<Run> runHistory;
 	
 	public Controller() {
+		m_runHistory = new RunHistory();
 		running = false;
 		m_state = ChronoState.OFF;
 	}
@@ -235,6 +237,11 @@ public class Controller implements ActionListener {
 	public void cmd_error(String errorMessage) {
 		cmd_error(errorMessage, true);
 	}
+	
+	public void cmd_print(String print){
+		System.out.println(print);
+	}
+	
 	public void cmd_error(String errorMessage, boolean ignored) {
 		//Add to event log and/or do something with error
 		System.out.println(errorMessage);
@@ -414,7 +421,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		
-		runHistory.add(m_run);
+		m_runHistory.addRun(m_run);
 		m_state = ChronoState.INITIAL;
 		System.out.println("Ending current run...");
 	}
@@ -428,7 +435,11 @@ public class Controller implements ActionListener {
 			cmd_error("System not running.");
 			return;
 		}
-		//print runHistory.get(run);
+		
+		Run r = m_runHistory.getRun(run);
+		for(Racer x: r.getFinishedQ()){
+			cmd_print("Racer Number : " + x.getNumber() + "\t -> Time: " + x.getTimer().getTime());
+		}
 	}
 	
 	//EXPORT <run>
