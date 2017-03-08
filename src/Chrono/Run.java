@@ -25,7 +25,7 @@ public class Run {
 	}
 
 	public int dnf() {
-		if(runningQ.isEmpty()) {
+		if (runningQ.isEmpty()) {
 			parentController.cmd_error("No racers currently running");
 			return -1;
 		}
@@ -33,9 +33,9 @@ public class Run {
 		finishedQ.addLast(r);
 		return r.getNumber();
 	}
-	
-	public int cancel(){
-		if(runningQ.isEmpty()) {
+
+	public int cancel() {
+		if (runningQ.isEmpty()) {
 			parentController.cmd_error("No racers currently running");
 			return -1;
 		}
@@ -43,6 +43,7 @@ public class Run {
 		readyQ.addFirst(r);
 		return r.getNumber();
 	}
+
 	public void triggerChannel(Channel c, LocalTime time) {
 		if (raceType == Competition.IND) {
 			if (c.getTriggerType() == TriggerType.START) {
@@ -72,7 +73,7 @@ public class Run {
 			// TODO later
 		} else if (raceType == Competition.PARIND) {
 			if (c.getTriggerType() == TriggerType.START) {
-				//START two people at the same time
+				// START two people at the same time
 				if (readyQ.isEmpty() || readyQ.size() < 2) {
 					// TODO Pipe through chronoController
 					parentController.cmd_error("No racers to start");
@@ -97,11 +98,19 @@ public class Run {
 				finishedQ.addLast(r);
 				System.out.println("Ending racer " + r.getNumber());
 			}
-			
+
 		}
 	}
-	
-	public LinkedList<Racer> getFinishedQ(){
+
+	public LinkedList<Racer> getReadyQ() {
+		return readyQ;
+	}
+
+	public LinkedList<Racer> getRunningQ() {
+		return runningQ;
+	}
+
+	public LinkedList<Racer> getFinishedQ() {
 		return finishedQ;
 	}
 
@@ -122,10 +131,10 @@ public class Run {
 		else if (finishedQ.contains(racer))
 			finishedQ.remove(racer);
 		else {
-			//Racer does not exist
+			// Racer does not exist
 			return false;
 		}
-		
+
 		return true;
 	}
 
