@@ -52,6 +52,10 @@ public class Simulator {
 			if(id > ActionEvent.ACTION_LAST) id = ActionEvent.ACTION_FIRST;
 			controller.actionPerformed(cmdAction);
 			
+			//Fixes java buffer issue with std streams
+			System.out.flush();
+			System.err.flush();
+			
 		}
 
 	}
