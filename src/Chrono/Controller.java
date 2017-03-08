@@ -248,7 +248,7 @@ public class Controller implements ActionListener {
 
 	public void cmd_error(String errorMessage, boolean ignored) {
 		// Add to event log and/or do something with error
-		System.out.println(errorMessage);
+		System.err.println(errorMessage);
 	}
 
 	// POWER
