@@ -25,7 +25,9 @@ public class Simulator {
 			}
 		}
 		
-		Controller controller = new Controller();
+		Display display = new CommandLineDisplay();
+		Printer printer = new Printer();
+		Controller controller = new Controller(display, printer);
 
 		// Main event loop
 		while (scan.hasNextLine()) {

@@ -26,7 +26,7 @@ public class Run {
 
 	public int dnf() {
 		if (runningQ.isEmpty()) {
-			parentController.cmd_error("No racers currently running");
+			parentController.display_error("No racers currently running");
 			return -1;
 		}
 		Racer r = runningQ.removeFirst();
@@ -36,7 +36,7 @@ public class Run {
 
 	public int cancel() {
 		if (runningQ.isEmpty()) {
-			parentController.cmd_error("No racers currently running");
+			parentController.display_error("No racers currently running");
 			return -1;
 		}
 		Racer r = runningQ.removeLast();
@@ -48,24 +48,22 @@ public class Run {
 		if (raceType == Competition.IND) {
 			if (c.getTriggerType() == TriggerType.START) {
 				if (readyQ.isEmpty()) {
-					// TODO Pipe through chronoController
-					parentController.cmd_error("No racers to start");
+					parentController.display_error("No racers to start");
 					return;
 				}
 				Racer r = readyQ.removeFirst();
 				r.getTimer().Start(time);
 				runningQ.addLast(r);
-				System.out.println("Starting racer: " + r.getNumber());
+				parentController.display("Starting racer: " + r.getNumber());
 			} else if (c.getTriggerType() == TriggerType.FINISH) {
 				if (runningQ.isEmpty()) {
-					// TODO Pipe through chronoController
-					parentController.cmd_error("No racers to end");
+					parentController.display_error("No racers to end");
 					return;
 				}
 				Racer r = runningQ.removeFirst();
 				r.getTimer().Stop(time);
 				finishedQ.addLast(r);
-				System.out.println("Ending racer " + r.getNumber());
+				parentController.display("Ending racer " + r.getNumber());
 			}
 		} else if (raceType == Competition.GRP) {
 			// TODO later
@@ -76,7 +74,7 @@ public class Run {
 				// START two people at the same time
 				if (readyQ.isEmpty() || readyQ.size() < 2) {
 					// TODO Pipe through chronoController
-					parentController.cmd_error("No racers to start");
+					parentController.display_error("No racers to start");
 					return;
 				}
 				Racer r1 = readyQ.removeFirst();
@@ -85,18 +83,18 @@ public class Run {
 				r2.getTimer().Start(time);
 				runningQ.addLast(r1);
 				runningQ.addLast(r2);
-				System.out.println("Starting racer: " + r1.getNumber());
-				System.out.println("Starting racer: " + r2.getNumber());
+				parentController.display("Starting racer: " + r1.getNumber());
+				parentController.display("Starting racer: " + r2.getNumber());
 			} else if (c.getTriggerType() == TriggerType.FINISH) {
 				if (runningQ.isEmpty()) {
 					// TODO Pipe through chronoController
-					parentController.cmd_error("No racers to end");
+					parentController.display_error("No racers to end");
 					return;
 				}
 				Racer r = runningQ.removeFirst();
 				r.getTimer().Stop(time);
 				finishedQ.addLast(r);
-				System.out.println("Ending racer " + r.getNumber());
+				parentController.display("Ending racer " + r.getNumber());
 			}
 
 		}
@@ -116,7 +114,7 @@ public class Run {
 
 	public boolean addRacer(Racer racer) {
 		if (readyQ.contains(racer) || runningQ.contains(racer) || finishedQ.contains(racer)) {
-			// Racer already exists
+			parentController.display_error("Racer already exists");
 			return false;
 		} else
 			readyQ.addLast(racer);
@@ -131,7 +129,7 @@ public class Run {
 		else if (finishedQ.contains(racer))
 			finishedQ.remove(racer);
 		else {
-			// Racer does not exist
+			parentController.display_error("Racer does not exist");
 			return false;
 		}
 

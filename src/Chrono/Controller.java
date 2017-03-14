@@ -16,6 +16,9 @@ public class Controller implements ActionListener {
 	public enum Competition {
 		IND, PARIND, GRP, PARGRP
 	}
+	
+	private Printer m_printer;
+	private Display m_display;
 
 	private boolean running;
 	private ChronoState m_state;
@@ -30,7 +33,10 @@ public class Controller implements ActionListener {
 	private int runID;
 	private ArrayList<Run> runHistory;
 
-	public Controller() {
+	public Controller(Display display, Printer printer) {
+		m_display = display;
+		m_printer = printer;
+		
 		m_runHistory = new RunHistory();
 		running = false;
 		m_state = ChronoState.OFF;
@@ -48,41 +54,41 @@ public class Controller implements ActionListener {
 			// TIME <hour>:<min>:<sec>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			String[] timeArgs = cmdArgs[1].split(":");
 			if (timeArgs.length < 3) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("TOG")) {
 			// TOG <channel>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				toggle(Integer.parseInt(cmdArgs[1]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("CONN")) {
 			// CONN <sensor> <num>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 3) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
@@ -91,7 +97,7 @@ public class Controller implements ActionListener {
 			try {
 				channel = Integer.parseInt(cmdArgs[2]);
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
@@ -102,28 +108,28 @@ public class Controller implements ActionListener {
 			else if (cmdArgs[1].equalsIgnoreCase("PAD"))
 				connect(Sensor.PAD, channel);
 			else {
-				cmd_error("Could not resolve argument type in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not resolve argument type in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("DISC")) {
 			// DISC <num>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				disconnect(Integer.parseInt(cmdArgs[1]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("EVENT")) {
 			// EVENT <type>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
@@ -136,7 +142,7 @@ public class Controller implements ActionListener {
 			else if (cmdArgs[1].equalsIgnoreCase("PARGRP"))
 				event(Competition.PARGRP);
 			else {
-				cmd_error("Could not resolve argument type in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not resolve argument type in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("NEWRUN"))
@@ -148,56 +154,56 @@ public class Controller implements ActionListener {
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			// TODO later: Default no args to current run if exists
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				print(Integer.parseInt(cmdArgs[1]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("EXPORT")) {
 			// EXPORT <run>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				export(Integer.parseInt(cmdArgs[1]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("NUM")) {
 			// NUM <number>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				num(Integer.parseInt(cmdArgs[1]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("CLR")) {
 			// CLR <number>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				clr(Integer.parseInt(cmdArgs[1]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("SWAP"))
@@ -208,14 +214,14 @@ public class Controller implements ActionListener {
 			// TRIG <num>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
-				cmd_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Incorrect number of arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
 				trigger(Integer.parseInt(cmdArgs[1]));
 			} catch (NumberFormatException ex) {
-				cmd_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
+				display_error("Could not parse arguments in command \"" + e.getActionCommand() + "\"");
 				return;
 			}
 		} else if (e.getActionCommand().startsWith("START"))
@@ -225,7 +231,7 @@ public class Controller implements ActionListener {
 		else if (e.getActionCommand().startsWith("CANCEL"))
 			cancel();
 		else {
-			cmd_error("Command not recognized.");
+			display_error("Command not recognized.");
 		}
 
 	}
@@ -238,17 +244,17 @@ public class Controller implements ActionListener {
 		this.running = running;
 	}
 
-	public void cmd_error(String errorMessage) {
-		cmd_error(errorMessage, true);
+	public void display_error(String errorMessage) {
+		display_error(errorMessage, true);
+	}
+	
+	public void display(String display) {
+		m_display.display(display);
 	}
 
-	public void cmd_print(String print) {
-		System.out.println(print);
-	}
-
-	public void cmd_error(String errorMessage, boolean ignored) {
+	public void display_error(String errorMessage, boolean ignored) {
 		// Add to event log and/or do something with error
-		System.err.println(errorMessage);
+		m_display.displayError(errorMessage);
 	}
 
 	// POWER
@@ -259,13 +265,14 @@ public class Controller implements ActionListener {
 	private void power() {
 		if (running) {
 			running = false;
-			System.out.println("Powering off...");
+			
+			display("Powering off...");
 		} else {
 			// resets system to initial state
 			// Basically like a "restart" on a computer
 			running = true;
 			reset();
-			System.out.println("Powering on...");
+			display("Powering on...");
 		}
 	}
 
@@ -274,7 +281,7 @@ public class Controller implements ActionListener {
 	// Exit the simulator.
 	private void exit() {
 		// NUKING SELF
-		System.err.println("There goes your System32...");
+		display("There goes your System32...");
 		System.exit(0);
 	}
 
@@ -283,7 +290,7 @@ public class Controller implements ActionListener {
 	// Resets the System to initial state and resets everything.
 	private void reset() {
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		m_state = ChronoState.INITIAL;
@@ -314,18 +321,18 @@ public class Controller implements ActionListener {
 	// Toggle the state of the channel specified.
 	private void toggle(int channel) {
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (channel < 1 || channel > NUM_CHANNELS) {
-			cmd_error("Channel out of range.");
+			display_error("Channel out of range.");
 			return;
 		}
 		m_channels[channel - 1].setEnabled(!m_channels[channel - 1].isEnabled());
 		if (m_channels[channel - 1].isEnabled()) {
-			System.out.println("Enabled channel: " + channel);
+			display("Enabled channel: " + channel);
 		} else {
-			System.out.println("Disabled channel: " + channel);
+			display("Disabled channel: " + channel);
 		}
 
 	}
@@ -336,20 +343,20 @@ public class Controller implements ActionListener {
 	private void connect(Sensor sensor, int channel) {
 		// TODO Later
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (channel < 1 || channel > NUM_CHANNELS) {
-			cmd_error("Channel out of range.");
+			display_error("Channel out of range.");
 			return;
 		}
 
 		if (m_channels[channel - 1].isConnected()) {
-			cmd_error("Channel is already connected to a sensor.");
+			display_error("Channel is already connected to a sensor.");
 			return;
 		}
 
-		System.out.println("Connecting channel: " + channel);
+		display("Connecting channel: " + channel);
 		m_channels[channel - 1].connect(sensor);
 	}
 
@@ -359,20 +366,20 @@ public class Controller implements ActionListener {
 	private void disconnect(int channel) {
 		// TODO Later
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (channel < 1 || channel > NUM_CHANNELS) {
-			cmd_error("Channel out of range.");
+			display_error("Channel out of range.");
 			return;
 		}
 
 		if (!m_channels[channel - 1].isConnected()) {
-			cmd_error("Channel is already disconnected.");
+			display_error("Channel is already disconnected.");
 			return;
 		}
 
-		System.out.println("Disconnect channel: " + channel);
+		display("Disconnect channel: " + channel);
 		m_channels[channel - 1].disconnect();
 	}
 
@@ -382,15 +389,15 @@ public class Controller implements ActionListener {
 	private void event(Competition type) {
 		// TODO Later
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.INITIAL) {
-			cmd_error("Cannot change competition type during a Run, must end current Run first.");
+			display_error("Cannot change competition type during a Run, must end current Run first.");
 		}
 
 		m_comp = type;
-		System.out.println("Event competition: " + type.toString());
+		display("Event competition: " + type.toString());
 	}
 
 	// NEWRUN
@@ -399,17 +406,17 @@ public class Controller implements ActionListener {
 	private void new_run() {
 		// TODO Sprint 1
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.INITIAL) {
-			cmd_error("A Run is already in progress, must end the current Run first.");
+			display_error("A Run is already in progress, must end the current Run first.");
 			return;
 		}
 
 		m_run = new Run(runID, m_comp, this);
 		m_state = ChronoState.RACING;
-		System.out.println("Creating new run...");
+		display("Creating new run...");
 	}
 
 	// ENDRUN
@@ -418,11 +425,11 @@ public class Controller implements ActionListener {
 	private void end_run() {
 		// TODO Sprint 1
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.RACING) {
-			cmd_error("A Run is not in progress, must start a Run first.");
+			display_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
 		if (!m_run.getReadyQ().isEmpty()) {
@@ -440,7 +447,7 @@ public class Controller implements ActionListener {
 		//Running Q and Ready Q are NOT empty after end_run if during run they weren't
 		m_runHistory.addRun(m_run);
 		m_state = ChronoState.INITIAL;
-		System.out.println("Ending current run...");
+		display("Ending current run...");
 	}
 
 	// PRINT <run>
@@ -449,13 +456,15 @@ public class Controller implements ActionListener {
 	private void print(int run) {
 		// TODO Later
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
+		
+		//Check if run is not ended, need to use run id to reference the run
 
 		Run r = m_runHistory.getRun(run);
 		for (Racer x : r.getFinishedQ()) {
-			cmd_print("Racer Number : " + x.getNumber() + "\t -> Time: " + x.getTimer().getTime());
+			m_printer.print("Racer Number : " + x.getNumber() + "\t -> Time: " + x.getTimer().getTime());
 		}
 	}
 
@@ -465,7 +474,7 @@ public class Controller implements ActionListener {
 	private void export(int run) {
 		// TODO Later
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		// export runHistory.get(run);
@@ -477,17 +486,17 @@ public class Controller implements ActionListener {
 	private void num(int number) {
 		// TODO Sprint 1
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.RACING) {
-			cmd_error("A Run is not in progress, must start a Run first.");
+			display_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
 		if (m_run.addRacer(new Racer(number))) {
-			System.out.println("Adding racer: " + number);
+			display("Adding racer: " + number);
 		} else {
-			cmd_error("Failed to add racer: " + number);
+			display_error("Failed to add racer: " + number);
 		}
 	}
 
@@ -497,18 +506,18 @@ public class Controller implements ActionListener {
 	private void clr(int number) {
 		// TODO Sprint 1
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.RACING) {
-			cmd_error("A Run is not in progress, must start a Run first.");
+			display_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
 
 		if (m_run.removeRacer(new Racer(number))) {
-			System.out.println("Clearing racer: " + number);
+			display("Clearing racer: " + number);
 		} else {
-			cmd_error("Failed to clear racer: " + number);
+			display_error("Failed to clear racer: " + number);
 		}
 	}
 
@@ -518,7 +527,7 @@ public class Controller implements ActionListener {
 	private void swap() {
 		// TODO Later
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 	}
@@ -529,16 +538,16 @@ public class Controller implements ActionListener {
 	private void dnf() {
 		// TODO Sprint 1
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.RACING) {
-			cmd_error("A Run is not in progress, must start a Run first.");
+			display_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
 		int number = m_run.dnf();
 		if (number > 0)
-			System.out.println("Racer DNF: " + number);
+			display("Racer DNF: " + number);
 	}
 
 	// TRIG <num>
@@ -547,23 +556,23 @@ public class Controller implements ActionListener {
 	private void trigger(int channel) {
 		// TODO Sprint 1
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.RACING) {
-			cmd_error("A Run is not in progress, must start a Run first.");
+			display_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
 		if (channel < 1 || channel > NUM_CHANNELS) {
-			cmd_error("Channel out of range.");
+			display_error("Channel out of range.");
 			return;
 		}
 
 		if (m_channels[channel - 1].isEnabled()) {
-			System.out.println("Tigger channel: " + channel);
+			display("Tigger channel: " + channel);
 			m_run.triggerChannel(m_channels[channel - 1], m_sysTime);
 		} else {
-			cmd_error("Channel currently disabled: " + channel);
+			display_error("Channel currently disabled: " + channel);
 		}
 
 	}
@@ -575,15 +584,15 @@ public class Controller implements ActionListener {
 	private void cancel() {
 		// TODO Sprint 1
 		if (!running) {
-			cmd_error("System not running.");
+			display_error("System not running.");
 			return;
 		}
 		if (m_state != ChronoState.RACING) {
-			cmd_error("A Run is not in progress, must start a Run first.");
+			display_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
 		int number = m_run.cancel();
 		if (number > 0)
-			System.out.println("Cancelling racer: " + number);
+			display("Cancelling racer: " + number);
 	}
 }
