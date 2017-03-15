@@ -17,6 +17,10 @@ public class Lane {
 		this.finishedQ = new LinkedList<Racer>();
 	}
 	
+	public int getLaneNum() {
+		return laneNum;
+	}
+	
 	public LinkedList<Racer> getReadyQ() {
 		return readyQ;
 	}
@@ -47,7 +51,7 @@ public class Lane {
 	
 	public int dnf() {
 		if (runningQ.isEmpty()) {
-			parentController.display_error("No racers currently running");
+			parentController.display_error(Messages.noRacersRunning);
 			return -1;
 		}
 		Racer r = runningQ.removeFirst();
@@ -57,7 +61,7 @@ public class Lane {
 
 	public int cancel() {
 		if (runningQ.isEmpty()) {
-			parentController.display_error("No racers currently running");
+			parentController.display_error(Messages.noRacersRunning);
 			return -1;
 		}
 		Racer r = runningQ.removeLast();
@@ -71,25 +75,25 @@ public class Lane {
 	
 	public boolean startNext(LocalTime time) {
 		if (readyQ.isEmpty()) {
-			parentController.display_error("No racers to start");
+			parentController.display_error(Messages.noRacersToStart);
 			return false;
 		}
 		Racer r = readyQ.removeFirst();
 		r.getTimer().Start(time);
 		runningQ.addLast(r);
-		parentController.display("Starting racer: " + r.getNumber());
+		parentController.display(Messages.startingRacer + r.getNumber());
 		return true;
 	}
 	
 	public boolean finishNext(LocalTime time) {
 		if (runningQ.isEmpty()) {
-			parentController.display_error("No racers to end");
+			parentController.display_error(Messages.noRacersToFinish);
 			return false;
 		}
 		Racer r = runningQ.removeFirst();
 		r.getTimer().Stop(time);
 		finishedQ.addLast(r);
-		parentController.display("Ending racer " + r.getNumber());
+		parentController.display(Messages.finishingRacer + r.getNumber());
 		return true;
 	}
 	

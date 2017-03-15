@@ -30,10 +30,16 @@ public class Timer {
 		return end;
 	}
 
-	public String getTime() {
+	public String toString() {
 		// TODO What if dnf? What if in readyQ and endrun is typed?
-		return (end.getHour() - start.getHour()) + ":" + (end.getMinute() - start.getMinute()) + ":"
-				+ (end.getNano() - start.getNano());
+		if(DNF) {
+			return Messages.DNF;
+		}
+		else {
+			return (end.getHour() - start.getHour()) + ":" + (end.getMinute() - start.getMinute()) + ":"
+					+ (end.getNano() - start.getNano());
+		}
+		
 	}
 
 	//

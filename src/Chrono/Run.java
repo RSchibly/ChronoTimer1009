@@ -12,10 +12,11 @@ public class Run {
     private ArrayList<Racer> racers;
 	private Competition raceType;
 	private int id;
-	private int numLanes = 0;
+	private int numLanes;
 	private Controller parentController;
 
 	public Run(int id, Competition raceType, Controller parent) {
+		this.numLanes = 0;
 		this.id = id;
 		this.raceType = raceType;
 		this.parentController = parent;
@@ -34,7 +35,7 @@ public class Run {
 			return lanes.get(0).dnf();
 		}
 		else {
-			parentController.display_error("Can't use DNF in this type of Competition");
+			parentController.display_error(Messages.noDNF);
 			return -1;
 		}
 	}
@@ -44,7 +45,7 @@ public class Run {
 			return lanes.get(0).cancel();
 		}
 		else {
-			parentController.display_error("Can't use Cancel in this type of Competition");
+			parentController.display_error(Messages.noCancel);
 			return -1;
 		}
 	}
@@ -77,15 +78,12 @@ public class Run {
 					lanes.get(1).finishNext(time);
 				}
 			}
-
 		}
 	}
 
-
-
 	public boolean addRacer(Racer racer) {
 		if(racers.contains(racer)) {
-			parentController.display_error("Racer already exists");
+			parentController.display_error(Messages.racerAlreadyExists);
 			return false;
 		} else {
 			racers.add(racer);
@@ -98,7 +96,6 @@ public class Run {
 			smallestLane.addRacer(racer);
 			return true;
 		}
-		
 	}
 
 	public boolean removeRacer(Racer racer) {
@@ -110,25 +107,23 @@ public class Run {
 			return true;
 		}
 		else {
-			parentController.display_error("Racer does not exist");
+			parentController.display_error(Messages.racerDoesNotExist);
 			return false;
 		}
-
-		
 	}
 	
 	public void endRun() {
 		for(Lane currentLane : lanes) {
 			if (!currentLane.getReadyQ().isEmpty()) {
-				for (int i = 0; i < currentLane.getReadyQ().size(); i++) {
-					currentLane.getReadyQ().get(i).getTimer().setDNF(true);
-					currentLane.getFinishedQ().add(currentLane.getReadyQ().get(i));
+				for (Racer r : currentLane.getReadyQ()) {
+					r.getTimer().setDNF(true);
+					currentLane.getFinishedQ().add(r);
 				}
 			}
 			if (!currentLane.getRunningQ().isEmpty()) {
-				for (int i = 0; i < currentLane.getRunningQ().size(); i++) {
-					currentLane.getRunningQ().get(i).getTimer().setDNF(true);
-					currentLane.getFinishedQ().add(currentLane.getRunningQ().get(i));
+				for (Racer r :  currentLane.getRunningQ()) {
+					r.getTimer().setDNF(true);
+					currentLane.getFinishedQ().add(r);
 				}
 			}
 		}
