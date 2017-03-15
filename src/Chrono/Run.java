@@ -2,68 +2,59 @@ package Chrono;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.LinkedList;
-
 import Chrono.Channel.TriggerType;
 import Chrono.Controller.Competition;
 
 //Has all of our Run logic
 public class Run {
 
-	private LinkedList<Racer> readyQ, runningQ, finishedQ;
+    private ArrayList<Lane> lanes;
+    private ArrayList<Racer> racers;
 	private Competition raceType;
 	private int id;
+	private int numLanes = 0;
 	private Controller parentController;
 
 	public Run(int id, Competition raceType, Controller parent) {
 		this.id = id;
 		this.raceType = raceType;
 		this.parentController = parent;
-		this.readyQ = new LinkedList<Racer>();
-		this.runningQ = new LinkedList<Racer>();
-		this.finishedQ = new LinkedList<Racer>();
+		this.racers = new ArrayList<Racer>();
+		this.lanes = new ArrayList<Lane>();
+		this.lanes.add(new Lane(numLanes++, parentController));
+		if(raceType == Competition.PARIND) this.lanes.add(new Lane(numLanes++, parentController));
+	}
+	
+	public ArrayList<Racer> getRacers() {
+		return racers;
 	}
 
 	public int dnf() {
-		if (runningQ.isEmpty()) {
-			parentController.display_error("No racers currently running");
+		if(raceType == Competition.IND) {
+			return lanes.get(0).dnf();
+		}
+		else {
+			parentController.display_error("Can't use DNF in this type of Competition");
 			return -1;
 		}
-		Racer r = runningQ.removeFirst();
-		finishedQ.addLast(r);
-		return r.getNumber();
 	}
 
 	public int cancel() {
-		if (runningQ.isEmpty()) {
-			parentController.display_error("No racers currently running");
+		if(raceType == Competition.IND) {
+			return lanes.get(0).cancel();
+		}
+		else {
+			parentController.display_error("Can't use Cancel in this type of Competition");
 			return -1;
 		}
-		Racer r = runningQ.removeLast();
-		readyQ.addFirst(r);
-		return r.getNumber();
 	}
 
 	public void triggerChannel(Channel c, LocalTime time) {
 		if (raceType == Competition.IND) {
 			if (c.getTriggerType() == TriggerType.START) {
-				if (readyQ.isEmpty()) {
-					parentController.display_error("No racers to start");
-					return;
-				}
-				Racer r = readyQ.removeFirst();
-				r.getTimer().Start(time);
-				runningQ.addLast(r);
-				parentController.display("Starting racer: " + r.getNumber());
+				lanes.get(0).startNext(time);
 			} else if (c.getTriggerType() == TriggerType.FINISH) {
-				if (runningQ.isEmpty()) {
-					parentController.display_error("No racers to end");
-					return;
-				}
-				Racer r = runningQ.removeFirst();
-				r.getTimer().Stop(time);
-				finishedQ.addLast(r);
-				parentController.display("Ending racer " + r.getNumber());
+				lanes.get(0).finishNext(time);
 			}
 		} else if (raceType == Competition.GRP) {
 			// TODO later
@@ -71,69 +62,76 @@ public class Run {
 			// TODO later
 		} else if (raceType == Competition.PARIND) {
 			if (c.getTriggerType() == TriggerType.START) {
-				// START two people at the same time
-				if (readyQ.isEmpty() || readyQ.size() < 2) {
-					// TODO Pipe through chronoController
-					parentController.display_error("No racers to start");
-					return;
+				if(c.getChannelIndex() == 1) {
+					lanes.get(0).startNext(time);
 				}
-				Racer r1 = readyQ.removeFirst();
-				Racer r2 = readyQ.removeFirst();
-				r1.getTimer().Start(time);
-				r2.getTimer().Start(time);
-				runningQ.addLast(r1);
-				runningQ.addLast(r2);
-				parentController.display("Starting racer: " + r1.getNumber());
-				parentController.display("Starting racer: " + r2.getNumber());
+				else if(c.getChannelIndex() == 3) {
+					lanes.get(1).startNext(time);
+				}
+				
 			} else if (c.getTriggerType() == TriggerType.FINISH) {
-				if (runningQ.isEmpty()) {
-					// TODO Pipe through chronoController
-					parentController.display_error("No racers to end");
-					return;
+				if(c.getChannelIndex() == 2) {
+					lanes.get(0).finishNext(time);
 				}
-				Racer r = runningQ.removeFirst();
-				r.getTimer().Stop(time);
-				finishedQ.addLast(r);
-				parentController.display("Ending racer " + r.getNumber());
+				else if(c.getChannelIndex() == 4) {
+					lanes.get(1).finishNext(time);
+				}
 			}
 
 		}
 	}
 
-	public LinkedList<Racer> getReadyQ() {
-		return readyQ;
-	}
 
-	public LinkedList<Racer> getRunningQ() {
-		return runningQ;
-	}
-
-	public LinkedList<Racer> getFinishedQ() {
-		return finishedQ;
-	}
 
 	public boolean addRacer(Racer racer) {
-		if (readyQ.contains(racer) || runningQ.contains(racer) || finishedQ.contains(racer)) {
+		if(racers.contains(racer)) {
 			parentController.display_error("Racer already exists");
 			return false;
-		} else
-			readyQ.addLast(racer);
-		return true;
+		} else {
+			racers.add(racer);
+			Lane smallestLane = lanes.get(0);
+			for(Lane currentLane : lanes) {
+				if(smallestLane.getSize() > currentLane.getSize()) {
+					smallestLane = currentLane;
+				}
+			}
+			smallestLane.addRacer(racer);
+			return true;
+		}
+		
 	}
 
 	public boolean removeRacer(Racer racer) {
-		if (readyQ.contains(racer))
-			readyQ.remove(racer);
-		else if (runningQ.contains(racer))
-			runningQ.remove(racer);
-		else if (finishedQ.contains(racer))
-			finishedQ.remove(racer);
+		if (racers.contains(racer)) {
+			racers.remove(racer);
+			for(Lane currentLane : lanes) {
+				currentLane.removeRacer(racer);
+			}
+			return true;
+		}
 		else {
 			parentController.display_error("Racer does not exist");
 			return false;
 		}
 
-		return true;
+		
+	}
+	
+	public void endRun() {
+		for(Lane currentLane : lanes) {
+			if (!currentLane.getReadyQ().isEmpty()) {
+				for (int i = 0; i < currentLane.getReadyQ().size(); i++) {
+					currentLane.getReadyQ().get(i).getTimer().setDNF(true);
+					currentLane.getFinishedQ().add(currentLane.getReadyQ().get(i));
+				}
+			}
+			if (!currentLane.getRunningQ().isEmpty()) {
+				for (int i = 0; i < currentLane.getRunningQ().size(); i++) {
+					currentLane.getRunningQ().get(i).getTimer().setDNF(true);
+					currentLane.getFinishedQ().add(currentLane.getRunningQ().get(i));
+				}
+			}
+		}
 	}
 
 	public int getID() {

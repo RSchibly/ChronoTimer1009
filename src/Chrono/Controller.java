@@ -432,19 +432,8 @@ public class Controller implements ActionListener {
 			display_error("A Run is not in progress, must start a Run first.");
 			return;
 		}
-		if (!m_run.getReadyQ().isEmpty()) {
-			for (int i = 0; i < m_run.getReadyQ().size(); i++) {
-				m_run.getReadyQ().get(i).getTimer().setDNF(true);
-				m_run.getFinishedQ().add(m_run.getReadyQ().get(i));
-			}
-		}
-		if (!m_run.getRunningQ().isEmpty()) {
-			for (int i = 0; i < m_run.getRunningQ().size(); i++) {
-				m_run.getRunningQ().get(i).getTimer().setDNF(true);
-				m_run.getFinishedQ().add(m_run.getRunningQ().get(i));
-			}
-		}
-		//Running Q and Ready Q are NOT empty after end_run if during run they weren't
+		m_run.endRun();
+		
 		m_runHistory.addRun(m_run);
 		m_state = ChronoState.INITIAL;
 		display("Ending current run...");
@@ -463,8 +452,13 @@ public class Controller implements ActionListener {
 		//Check if run is not ended, need to use run id to reference the run
 
 		Run r = m_runHistory.getRun(run);
-		for (Racer x : r.getFinishedQ()) {
-			m_printer.print("Racer Number : " + x.getNumber() + "\t -> Time: " + x.getTimer().getTime());
+		for (Racer x : r.getRacers()) {
+			if(x.getTimer().isDNF()) {
+				m_printer.print("Racer Number : " + x.getNumber() + "\t -> Time: DNF");
+			}
+			else {
+				m_printer.print("Racer Number : " + x.getNumber() + "\t -> Time: " + x.getTimer().getTime());
+			}
 		}
 	}
 
