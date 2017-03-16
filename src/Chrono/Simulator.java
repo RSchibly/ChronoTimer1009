@@ -10,7 +10,7 @@ public class Simulator {
 
 	public static void main(String[] args) throws InterruptedException {
 		boolean isFile = false;
-		String fileFile = "testOutOfRun.txt";
+		String fileFile = "dnfTest.txt";
 		Scanner scan = new Scanner (System.in);
 		System.out.print("Are you entering a file for this simulation? (Y/N)");
 		String resp = scan.nextLine();

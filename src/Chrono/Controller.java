@@ -53,7 +53,7 @@ public class Controller implements ActionListener {
 		else if (e.getActionCommand().startsWith("RESET"))
 			reset();
 		else if (e.getActionCommand().startsWith("TIME")) {
-			// TIME <hour>:<min>:<sec>
+			// TIME <hour>:<min>:<sec>:<nano>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
@@ -67,7 +67,7 @@ public class Controller implements ActionListener {
 			}
 
 			try {
-				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]));
+				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]), Double.parseDouble(timeArgs[3]));
 			} catch (NumberFormatException ex) {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
@@ -306,12 +306,12 @@ public class Controller implements ActionListener {
 			m_channels[i] = new Channel(i + 1);
 	}
 
-	// TIME <hour>:<min>:<sec>
+	// TIME <hour>:<min>:<sec>:<nano>
 	// States allowed: ALL
 	// Sets(advances) the System time to the time specified(so there is no wait
 	// for test output).
-	private void time(int hour, int min, double sec) {
-		m_sysTime = LocalTime.of(hour, min, (int) sec);
+	private void time(int hour, int min, double sec, double nano) {
+		m_sysTime = LocalTime.of(hour, min, (int) sec, (int) nano);
 	}
 
 	// TOG <channel>
@@ -451,6 +451,7 @@ public class Controller implements ActionListener {
 			if(r.getID() == run) {
 				for (Racer x : r.getRacers()) {
 					m_printer.print(Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
+					
 				}
 				break;
 			}
