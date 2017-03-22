@@ -67,7 +67,7 @@ public class Controller implements ActionListener {
 			}
 
 			try {
-				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]));
+				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]), Double.parseDouble(timeArgs[3]));
 			} catch (NumberFormatException ex) {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
@@ -310,8 +310,8 @@ public class Controller implements ActionListener {
 	// States allowed: ALL
 	// Sets(advances) the System time to the time specified(so there is no wait
 	// for test output).
-	private void time(int hour, int min, double sec) {
-		m_sysTime = LocalTime.of(hour, min, (int) sec);
+	private void time(int hour, int min, double sec, double nano) {
+		m_sysTime = LocalTime.of(hour, min, (int) sec, (int) nano);
 	}
 
 	// TOG <channel>
