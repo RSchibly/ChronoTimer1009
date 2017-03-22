@@ -10,7 +10,7 @@ public class Simulator {
 
 	public static void main(String[] args) throws InterruptedException {
 		boolean isFile = false;
-		String fileFile = "dnfTest.txt";
+		String fileFile = "CTS1RUN2.txt";
 		Scanner scan = new Scanner (System.in);
 		System.out.print("Are you entering a file for this simulation? (Y/N)");
 		String resp = scan.nextLine();
@@ -46,7 +46,7 @@ public class Simulator {
 			}
 			else {
 				controller.actionPerformed(new ActionEvent(scan, id++, "TIME "
-						+ LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + ":" + LocalTime.now().getSecond() + ":" + LocalTime.now().getNano()));
+						+ LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + ":" + LocalTime.now().getSecond() + "." + LocalTime.now().getNano()));
 				cmdAction = new ActionEvent(scan, id++, cmd);
 			}
 

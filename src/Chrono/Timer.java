@@ -38,7 +38,7 @@ public class Timer {
 		}else {
 			int nano = end.getNano();
 			String nanoString = "" + nano;
-			nanoString = nanoString.substring(0, 2);
+			nanoString = nanoString.substring(0, 1);
 			int seconds = (end.getSecond() - start.getSecond());
 			int minutes = (end.getMinute() - start.getMinute());
 			int hours = (end.getHour() - start.getHour());

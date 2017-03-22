@@ -53,14 +53,15 @@ public class Controller implements ActionListener {
 		else if (e.getActionCommand().startsWith("RESET"))
 			reset();
 		else if (e.getActionCommand().startsWith("TIME")) {
-			// TIME <hour>:<min>:<sec>
+			// TIME <hour>:<min>:<sec>:<nano>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
-			String[] timeArgs = cmdArgs[1].split(":");
+			//splits on ":" or "."
+			String[] timeArgs = cmdArgs[1].split(":|\\.");
 			if (timeArgs.length < 4) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
