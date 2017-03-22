@@ -35,12 +35,19 @@ public class Timer {
 		// TODO What if dnf? What if in readyQ and endrun is typed?
 		if (DNF) {
 			return Messages.DNF;
-		} else {
-			// return (end.getHour() - start.getHour()) + ":" + (end.getMinute()
-			// - start.getMinute()) + ":"
-			// + (end.getNano() - start.getNano());
-			//
-			// Needs a start time and end time
+		}else {
+			int nano = end.getNano();
+			int seconds = (end.getSecond() - start.getSecond());
+			int minutes = (end.getMinute() - start.getMinute());
+			int hours = (end.getHour() - start.getHour());
+			String time = "" + hours + ":" + minutes + ":" + seconds + ":" + nano;
+			return time;
+//			 return (end.getHour() - start.getHour()) + ":" + (end.getMinute() - start.getMinute()) + ":"
+//					 + (end.getSecond() - start.getSecond());
+		}		
+					 //Needs a start time and end time
+	}
+			
 
 //			System.out.println("nano: " + end.getNano());
 //			
@@ -51,13 +58,13 @@ public class Timer {
 //			end = end.minusNanos(start.getNano());
 //			double nano = (end.getNano() - start.getNano());
 //			String nanoS = numberFormat.format(nano);
-			
-			int nano = end.getNano();
-			int seconds = (end.getSecond() - start.getSecond());
-			int minutes = (end.getMinute() - start.getMinute());
-			int hours = (end.getHour() - start.getHour());
-			String time = "" + hours + ":" + minutes + ":" + seconds + ":" + nano;
-			
+//			
+//			int nano = end.getNano();
+//			int seconds = (end.getSecond() - start.getSecond());
+//			int minutes = (end.getMinute() - start.getMinute());
+//			int hours = (end.getHour() - start.getHour());
+//			String time = "" + hours + ":" + minutes + ":" + seconds + ":" + nano;
+//			
 			
 
 			// Format correctly
@@ -87,11 +94,10 @@ public class Timer {
 //				System.out.printf("%.2f", numberOfSeconds);
 //			else
 //				System.out.print("00:");
-			
-			return (time);
-		}
-
-	}
+//			
+//			return (time);
+//		}
+//
 
 	//
 	// //Needs a start time and end time
