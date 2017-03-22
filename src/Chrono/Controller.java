@@ -61,7 +61,7 @@ public class Controller implements ActionListener {
 			}
 
 			String[] timeArgs = cmdArgs[1].split(":");
-			if (timeArgs.length < 3) {
+			if (timeArgs.length < 4) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}

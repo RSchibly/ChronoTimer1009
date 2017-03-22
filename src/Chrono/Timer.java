@@ -37,10 +37,12 @@ public class Timer {
 			return Messages.DNF;
 		}else {
 			int nano = end.getNano();
+			String nanoString = "" + nano;
+			nanoString = nanoString.substring(0, 2);
 			int seconds = (end.getSecond() - start.getSecond());
 			int minutes = (end.getMinute() - start.getMinute());
 			int hours = (end.getHour() - start.getHour());
-			String time = "" + hours + ":" + minutes + ":" + seconds + ":" + nano;
+			String time = "" + hours + ":" + minutes + ":" + seconds + "." + nanoString;
 			return time;
 //			 return (end.getHour() - start.getHour()) + ":" + (end.getMinute() - start.getMinute()) + ":"
 //					 + (end.getSecond() - start.getSecond());

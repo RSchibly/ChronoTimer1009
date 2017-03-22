@@ -47,7 +47,6 @@ public class Simulator {
 			else {
 				controller.actionPerformed(new ActionEvent(scan, id++, "TIME "
 						+ LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + ":" + LocalTime.now().getSecond() + ":" + LocalTime.now().getNano()));
-				//add	+ "." + LocalTime.now().getNano()
 				cmdAction = new ActionEvent(scan, id++, cmd);
 			}
 
