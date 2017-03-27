@@ -23,6 +23,7 @@ public final class Messages {
 	public static final String noCancel = "Can't use Cancel in this type of Competition.";
 	public static final String racerAlreadyExists = "Racer already exists.";
 	public static final String racerDoesNotExist = "Racer does not exist.";
+	public static final String runDoesNotExist = "The run ID specified does not exist.";
 	
 	//MESSAGES
 	public static final String powerOn = "Powering on...";
@@ -33,8 +34,8 @@ public final class Messages {
 	public static final String connectingChannel = "Connecting channel: ";
 	public static final String disconnectingChannel = "Disconnect channel: ";
 	public static final String eventComp = "Event competition: ";
-	public static final String creatingRun = "Creating new run...";
-	public static final String endingRun = "Ending current run...";
+	public static final String creatingRun = "Creating new run: ";
+	public static final String endingRun = "Ending current run: ";
 	public static final String racerNumber = "Racer Number : ";
 	public static final String racerTime = " -> Time: ";
 	public static final String DNF = "DNF";

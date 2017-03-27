@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import javax.swing.text.GapContent;
+
 import com.google.gson.Gson;
 
 import Chrono.Channel.Sensor;
@@ -53,21 +55,22 @@ public class Controller implements ActionListener {
 		else if (e.getActionCommand().startsWith("RESET"))
 			reset();
 		else if (e.getActionCommand().startsWith("TIME")) {
-			// TIME <hour>:<min>:<sec>
+			// TIME <hour>:<min>:<sec>:<nano>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
-			String[] timeArgs = cmdArgs[1].split(":");
-			if (timeArgs.length < 3) {
+			//splits on ":" or "."
+			String[] timeArgs = cmdArgs[1].split(":|\\.");
+			if (timeArgs.length < 4) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
-				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]));
+				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]), Double.parseDouble(timeArgs[3]));
 			} catch (NumberFormatException ex) {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
@@ -257,6 +260,7 @@ public class Controller implements ActionListener {
 	public void display_error(String errorMessage, boolean ignored) {
 		// Add to event log and/or do something with error
 		m_display.displayError(errorMessage);
+		if(!ignored) System.exit(1);
 	}
 
 	// POWER
@@ -310,8 +314,8 @@ public class Controller implements ActionListener {
 	// States allowed: ALL
 	// Sets(advances) the System time to the time specified(so there is no wait
 	// for test output).
-	private void time(int hour, int min, double sec) {
-		m_sysTime = LocalTime.of(hour, min, (int) sec);
+	private void time(int hour, int min, double sec, double nano) {
+		m_sysTime = LocalTime.of(hour, min, (int) sec, (int) nano);
 	}
 
 	// TOG <channel>
@@ -414,7 +418,7 @@ public class Controller implements ActionListener {
 
 		m_run = new Run(runID, m_comp, this);
 		m_state = ChronoState.RACING;
-		display(Messages.creatingRun);
+		display(Messages.creatingRun + runID);
 	}
 
 	// ENDRUN
@@ -433,7 +437,7 @@ public class Controller implements ActionListener {
 		
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
-		display(Messages.endingRun);
+		display(Messages.endingRun + runID++);
 	}
 
 	// PRINT <run>
@@ -446,14 +450,18 @@ public class Controller implements ActionListener {
 		}
 		
 		//Check if run is not ended, need to use run id to reference the run
-
+		boolean foundIt = false;
 		for(Run r : runHistory) {
 			if(r.getID() == run) {
 				for (Racer x : r.getRacers()) {
 					m_printer.print(Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
 				}
+				foundIt = true;
 				break;
 			}
+		}
+		if(!foundIt) {
+			display_error(Messages.runDoesNotExist);
 		}
 	}
 
@@ -467,18 +475,25 @@ public class Controller implements ActionListener {
 			return;
 		}
 		Gson g = new Gson();
+		boolean foundIt = false;
 		for(Run r : runHistory) {
 			if(r.getID() == run) {
-				String out = g.toJson(r);
+				String out = g.toJson(r.getRacers());
+				
 				try {
-					PrintWriter writer = new PrintWriter(run + ".json");
+					PrintWriter writer = new PrintWriter("RUN"+ run + ".json");
 					writer.println(out);
 					writer.close();
 				}catch(Exception e){
 					display_error(Messages.exportError + e.getMessage());
+					System.exit(1);
 				}
+				foundIt = true;
 				break;
 			}
+		}
+		if(!foundIt) {
+			display_error(Messages.runDoesNotExist);
 		}
 	}
 
