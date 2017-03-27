@@ -12,7 +12,7 @@ public class CommandLineDisplay implements Display {
 
 	@Override
 	public void displayError(String string) {
-		System.err.println(string);
+		System.out.println("ERROR: " + string);
 		
 	}
 

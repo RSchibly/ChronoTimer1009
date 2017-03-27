@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import javax.swing.text.GapContent;
+
 import com.google.gson.Gson;
 
 import Chrono.Channel.Sensor;
@@ -258,6 +260,7 @@ public class Controller implements ActionListener {
 	public void display_error(String errorMessage, boolean ignored) {
 		// Add to event log and/or do something with error
 		m_display.displayError(errorMessage);
+		if(!ignored) System.exit(1);
 	}
 
 	// POWER
@@ -415,7 +418,7 @@ public class Controller implements ActionListener {
 
 		m_run = new Run(runID, m_comp, this);
 		m_state = ChronoState.RACING;
-		display(Messages.creatingRun);
+		display(Messages.creatingRun + runID);
 	}
 
 	// ENDRUN
@@ -434,7 +437,7 @@ public class Controller implements ActionListener {
 		
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
-		display(Messages.endingRun);
+		display(Messages.endingRun + runID++);
 	}
 
 	// PRINT <run>
@@ -447,15 +450,18 @@ public class Controller implements ActionListener {
 		}
 		
 		//Check if run is not ended, need to use run id to reference the run
-
+		boolean foundIt = false;
 		for(Run r : runHistory) {
 			if(r.getID() == run) {
 				for (Racer x : r.getRacers()) {
 					m_printer.print(Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
-					
 				}
+				foundIt = true;
 				break;
 			}
+		}
+		if(!foundIt) {
+			display_error(Messages.runDoesNotExist);
 		}
 	}
 
@@ -469,18 +475,25 @@ public class Controller implements ActionListener {
 			return;
 		}
 		Gson g = new Gson();
+		boolean foundIt = false;
 		for(Run r : runHistory) {
 			if(r.getID() == run) {
-				String out = g.toJson(r);
+				String out = g.toJson(r.getRacers());
+				
 				try {
-					PrintWriter writer = new PrintWriter(run + ".json");
+					PrintWriter writer = new PrintWriter("RUN"+ run + ".json");
 					writer.println(out);
 					writer.close();
 				}catch(Exception e){
 					display_error(Messages.exportError + e.getMessage());
+					System.exit(1);
 				}
+				foundIt = true;
 				break;
 			}
+		}
+		if(!foundIt) {
+			display_error(Messages.runDoesNotExist);
 		}
 	}
 
