@@ -3,7 +3,7 @@ package Chrono;
 public class Racer {
 	private int racerNumber;
 	private Timer time;
-	
+
 	public Racer(int racerNumber) {
 		this.racerNumber = racerNumber;
 		time = new Timer();
@@ -13,22 +13,26 @@ public class Racer {
 		return racerNumber;
 	}
 
+	public void setNumber(int rNum) {
+		racerNumber = rNum;
+	}
+
 	public Timer getTimer() {
 		return time;
 	}
-	
+
 	public String toString() {
-		//TODO possibly?
+		// TODO possibly?
 		return "TODO";
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof Racer) {
+		if (obj instanceof Racer) {
 			Racer ptr = (Racer) obj;
 			return ptr.racerNumber == this.racerNumber;
-		}
-		else return false;
+		} else
+			return false;
 	}
 
 	@Override
