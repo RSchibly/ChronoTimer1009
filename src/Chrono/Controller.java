@@ -22,7 +22,7 @@ public class Controller implements ActionListener {
 	public enum Competition {
 		IND, PARIND, GRP, PARGRP
 	}
-	
+
 	private Printer m_printer;
 	private Display m_display;
 
@@ -62,7 +62,7 @@ public class Controller implements ActionListener {
 				return;
 			}
 
-			//splits on ":" or "."
+			// splits on ":" or "."
 			String[] timeArgs = cmdArgs[1].split(":|\\.");
 			if (timeArgs.length < 4) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
@@ -70,7 +70,8 @@ public class Controller implements ActionListener {
 			}
 
 			try {
-				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]), Double.parseDouble(timeArgs[3]));
+				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]),
+						Double.parseDouble(timeArgs[3]));
 			} catch (NumberFormatException ex) {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
@@ -185,18 +186,34 @@ public class Controller implements ActionListener {
 			}
 		} else if (e.getActionCommand().startsWith("NUM")) {
 			// NUM <number>
-			String[] cmdArgs = e.getActionCommand().split(" ");
-			if (cmdArgs.length < 2) {
-				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
-				return;
+			if (m_run.isGRPStartedAndFinished()) {
+				String[] cmdArgs = e.getActionCommand().split(" ");
+				if (cmdArgs.length < 2) {
+					display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
+					return;
+				}
+
+				try {
+					m_run.setGRPNumber(Integer.parseInt(cmdArgs[1]));
+				} catch (NumberFormatException ex) {
+					display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
+					return;
+				}
+			} else if(!m_run.isGRPStarted()){
+				String[] cmdArgs = e.getActionCommand().split(" ");
+				if (cmdArgs.length < 2) {
+					display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
+					return;
+				}
+
+				try {
+					num(Integer.parseInt(cmdArgs[1]));
+				} catch (NumberFormatException ex) {
+					display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
+					return;
+				}
 			}
 
-			try {
-				num(Integer.parseInt(cmdArgs[1]));
-			} catch (NumberFormatException ex) {
-				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
-				return;
-			}
 		} else if (e.getActionCommand().startsWith("CLR")) {
 			// CLR <number>
 			String[] cmdArgs = e.getActionCommand().split(" ");
@@ -252,7 +269,7 @@ public class Controller implements ActionListener {
 	public void display_error(String errorMessage) {
 		display_error(errorMessage, true);
 	}
-	
+
 	public void display(String display) {
 		m_display.display(display);
 	}
@@ -260,7 +277,8 @@ public class Controller implements ActionListener {
 	public void display_error(String errorMessage, boolean ignored) {
 		// Add to event log and/or do something with error
 		m_display.displayError(errorMessage);
-		if(!ignored) System.exit(1);
+		if (!ignored)
+			System.exit(1);
 	}
 
 	// POWER
@@ -271,7 +289,7 @@ public class Controller implements ActionListener {
 	private void power() {
 		if (running) {
 			running = false;
-			
+
 			display(Messages.powerDown);
 		} else {
 			// resets system to initial state
@@ -330,9 +348,9 @@ public class Controller implements ActionListener {
 			display_error(Messages.channelRangeError);
 			return;
 		}
-		
+
 		m_channels[channel - 1].setEnabled(!m_channels[channel - 1].isEnabled());
-		
+
 		if (m_channels[channel - 1].isEnabled()) {
 			display(Messages.enabledChannel + channel);
 		} else {
@@ -434,7 +452,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 		m_run.endRun();
-		
+
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
 		display(Messages.endingRun + runID++);
@@ -448,19 +466,20 @@ public class Controller implements ActionListener {
 			display_error(Messages.systemNotRunning);
 			return;
 		}
-		
-		//Check if run is not ended, need to use run id to reference the run
+
+		// Check if run is not ended, need to use run id to reference the run
 		boolean foundIt = false;
-		for(Run r : runHistory) {
-			if(r.getID() == run) {
+		for (Run r : runHistory) {
+			if (r.getID() == run) {
 				for (Racer x : r.getRacers()) {
-					m_printer.print(Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
+					m_printer.print(
+							Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
 				}
 				foundIt = true;
 				break;
 			}
 		}
-		if(!foundIt) {
+		if (!foundIt) {
 			display_error(Messages.runDoesNotExist);
 		}
 	}
@@ -476,15 +495,15 @@ public class Controller implements ActionListener {
 		}
 		Gson g = new Gson();
 		boolean foundIt = false;
-		for(Run r : runHistory) {
-			if(r.getID() == run) {
+		for (Run r : runHistory) {
+			if (r.getID() == run) {
 				String out = g.toJson(r.getRacers());
-				
+
 				try {
-					PrintWriter writer = new PrintWriter("RUN"+ run + ".json");
+					PrintWriter writer = new PrintWriter("RUN" + run + ".json");
 					writer.println(out);
 					writer.close();
-				}catch(Exception e){
+				} catch (Exception e) {
 					display_error(Messages.exportError + e.getMessage());
 					System.exit(1);
 				}
@@ -492,7 +511,7 @@ public class Controller implements ActionListener {
 				break;
 			}
 		}
-		if(!foundIt) {
+		if (!foundIt) {
 			display_error(Messages.runDoesNotExist);
 		}
 	}
