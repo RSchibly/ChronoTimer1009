@@ -2,6 +2,7 @@ package Chrono;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataOutputStream;
 import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -199,7 +200,7 @@ public class Controller implements ActionListener {
 					display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 					return;
 				}
-			} else if(!m_run.isGRPStarted()){
+			} else if (!m_run.isGRPStarted()) {
 				String[] cmdArgs = e.getActionCommand().split(" ");
 				if (cmdArgs.length < 2) {
 					display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
@@ -515,6 +516,45 @@ public class Controller implements ActionListener {
 			display_error(Messages.runDoesNotExist);
 		}
 	}
+
+	//TODO
+//	private void HTMLExport(int run) {
+//		if (!running) {
+//			display_error(Messages.systemNotRunning);
+//			return;
+//		}
+//		String html;
+//		Gson g = new Gson();
+//		boolean foundIt = false;
+//		for (Run r : runHistory) {
+//			if (r.getID() == run) {
+//				// TODO: Error-causing POST Request
+//				try {
+//					// now create a POST request
+//					conn.setRequestMethod("POST");
+//					conn.setDoOutput(true);
+//					conn.setDoInput(true);
+//					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+//
+//					// build a string that contains JSON from console
+//					html = g.toJson(r.getHTMLRun());
+//
+//					// write out string to output buffer for message
+//					out.writeBytes(html);
+//					out.flush(); // cleans up the buffer
+//					out.close(); // sends it to the server
+//				} catch (Exception f) {
+//					f.printStackTrace();
+//				}
+//
+//				foundIt = true;
+//				break;
+//			}
+//		}
+//		if (!foundIt) {
+//			display_error(Messages.runDoesNotExist);
+//		}
+//	}
 
 	// NUM <number>
 	// States allowed: RACING

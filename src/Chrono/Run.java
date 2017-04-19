@@ -180,4 +180,15 @@ public class Run {
 		return id;
 	}
 
+	public String getHTMLRun(){
+		String html = "";
+		for(Racer r: racers){
+			//Number, Time
+			html += "<td>" + r.getNumber() + "</td><td>"
+			+ r.getTimer() + "</td><td>";
+		}
+		
+		return html;
+	}
+	
 }
