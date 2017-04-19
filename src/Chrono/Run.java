@@ -2,6 +2,8 @@ package Chrono;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedList;
+
 import Chrono.Channel.TriggerType;
 import Chrono.Controller.Competition;
 
@@ -29,7 +31,19 @@ public class Run {
 	public ArrayList<Racer> getRacers() {
 		return racers;
 	}
-
+	
+	public LinkedList<Racer> getReadyQ(){
+		return lanes.get(numLanes-1).getReadyQ();
+	}
+	
+	public LinkedList<Racer> getRunningQ(){
+		return lanes.get(numLanes - 1).getRunningQ();
+	}
+	
+	public LinkedList<Racer> getFinishedQ(){
+		return lanes.get(numLanes - 1).getFinishedQ();
+	}
+	
 	public int dnf() {
 		if(raceType == Competition.IND) {
 			return lanes.get(0).dnf();

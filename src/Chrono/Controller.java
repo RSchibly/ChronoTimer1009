@@ -592,4 +592,10 @@ public class Controller implements ActionListener {
 		if (number > 0)
 			display(Messages.cancelRacer + number);
 	}
+	public int getRunningQSize(){
+		return m_run.getRunningQ().size();
+	}
+	public Run getRun(){
+		return m_run;
+	}
 }
