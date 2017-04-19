@@ -39,5 +39,4 @@ public class Racer {
 	public int hashCode() {
 		return racerNumber * time.hashCode();
 	}
-
 }
