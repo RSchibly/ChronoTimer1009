@@ -479,7 +479,7 @@ public class Controller implements ActionListener {
 		boolean foundIt = false;
 		for (Run r : runHistory) {
 			if (r.getID() == run) {
-				for (Racer x : r.getRacers()) {
+				for (Racer x : r.getRacer()) {
 					m_printer.print(
 							Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
 				}
