@@ -175,7 +175,7 @@ public class Run {
 
 	public boolean swap() {
 		// numLanes - 1 due to constructor incrementing it
-		if (lanes.get(numLanes - 1).getRunningQ().size() < 2) {
+		if (raceType != Competition.IND || lanes.get(numLanes - 1).getRunningQ().size() < 2) {
 			// print statement for failure dealt in Controller. Why? I don't
 			// know, felt like it.
 			return false;
