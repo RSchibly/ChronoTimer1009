@@ -57,5 +57,4 @@ public class Channel {
 	public Sensor getSensorType() {
 		return m_sensorType;
 	}
-
 }

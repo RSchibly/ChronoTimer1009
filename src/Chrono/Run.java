@@ -151,21 +151,37 @@ public class Run {
 	}
 
 	public void setGRPNumber(int rNum) {
-		for(int i = 0; i < lanes.get(0).getFinishedQ().size(); i++){
+		for (int i = 0; i < lanes.get(0).getFinishedQ().size(); i++) {
 			Racer r = lanes.get(0).getFinishedQ().get(i);
-			if(r.getNumber() == rNum && i < groupNumCounter){
-				//TODO print error
-				//This one is for you Rick
+			if (r.getNumber() == rNum && i < groupNumCounter) {
+				// TODO print error
+				// This one is for you Rick
 				System.out.println("CaNnOt AdD - GrOuP NuM");
 				return;
-			}
-			else if(r.getNumber() == rNum){
+			} else if (r.getNumber() == rNum) {
 				int temp = lanes.get(0).getFinishedQ().get(groupNumCounter).getNumber();
 				r.setNumber(temp);
 			}
 		}
-		
+
 		lanes.get(0).getFinishedQ().get(groupNumCounter++).setNumber(rNum);
+	}
+
+	public boolean swap() {
+		// numLanes - 1 due to constructor incrementing it
+		if (lanes.get(numLanes - 1).getRunningQ().size() < 2) {
+			// print statement for failure dealt in Controller. Why? I don't
+			// know, felt like it.
+			return false;
+		}
+
+		Racer tmp = lanes.get(numLanes - 1).getRunningQ().get(1);
+		lanes.get(numLanes - 1).getRunningQ().set(1, lanes.get(numLanes - 1).getRunningQ().get(0));
+		lanes.get(numLanes - 1).getRunningQ().set(0, tmp);
+
+		System.out.println("Racer " + lanes.get(numLanes - 1).getRunningQ().get(0).getNumber() + " passed Racer "
+				+ lanes.get(numLanes - 1).getRunningQ().get(1).getNumber() + ".");
+		return true;
 	}
 
 	public boolean isGRPStartedAndFinished() {
@@ -180,15 +196,14 @@ public class Run {
 		return id;
 	}
 
-	public String getHTMLRun(){
+	public String getHTMLRun() {
 		String html = "";
-		for(Racer r: racers){
-			//Number, Time
-			html += "<td>" + r.getNumber() + "</td><td>"
-			+ r.getTimer() + "</td><td>";
+		for (Racer r : racers) {
+			// Number, Time
+			html += "<td>" + r.getNumber() + "</td><td>" + r.getTimer() + "</td><td>";
 		}
-		
+
 		return html;
 	}
-	
+
 }

@@ -187,6 +187,13 @@ public class Controller implements ActionListener {
 			}
 		} else if (e.getActionCommand().startsWith("NUM")) {
 			// NUM <number>
+			// TODO Should we allow creation of racers outside of a run? If no
+			// do this code
+			// if (m_run == null) {
+			// System.out.println("No run has been started");
+			// return;
+			// }
+
 			if (m_run.isGRPStartedAndFinished()) {
 				String[] cmdArgs = e.getActionCommand().split(" ");
 				if (cmdArgs.length < 2) {
@@ -517,44 +524,44 @@ public class Controller implements ActionListener {
 		}
 	}
 
-	//TODO
-//	private void HTMLExport(int run) {
-//		if (!running) {
-//			display_error(Messages.systemNotRunning);
-//			return;
-//		}
-//		String html;
-//		Gson g = new Gson();
-//		boolean foundIt = false;
-//		for (Run r : runHistory) {
-//			if (r.getID() == run) {
-//				// TODO: Error-causing POST Request
-//				try {
-//					// now create a POST request
-//					conn.setRequestMethod("POST");
-//					conn.setDoOutput(true);
-//					conn.setDoInput(true);
-//					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-//
-//					// build a string that contains JSON from console
-//					html = g.toJson(r.getHTMLRun());
-//
-//					// write out string to output buffer for message
-//					out.writeBytes(html);
-//					out.flush(); // cleans up the buffer
-//					out.close(); // sends it to the server
-//				} catch (Exception f) {
-//					f.printStackTrace();
-//				}
-//
-//				foundIt = true;
-//				break;
-//			}
-//		}
-//		if (!foundIt) {
-//			display_error(Messages.runDoesNotExist);
-//		}
-//	}
+	// TODO
+	// private void HTMLExport(int run) {
+	// if (!running) {
+	// display_error(Messages.systemNotRunning);
+	// return;
+	// }
+	// String html;
+	// Gson g = new Gson();
+	// boolean foundIt = false;
+	// for (Run r : runHistory) {
+	// if (r.getID() == run) {
+	// // TODO: Error-causing POST Request
+	// try {
+	// // now create a POST request
+	// conn.setRequestMethod("POST");
+	// conn.setDoOutput(true);
+	// conn.setDoInput(true);
+	// DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+	//
+	// // build a string that contains JSON from console
+	// html = g.toJson(r.getHTMLRun());
+	//
+	// // write out string to output buffer for message
+	// out.writeBytes(html);
+	// out.flush(); // cleans up the buffer
+	// out.close(); // sends it to the server
+	// } catch (Exception f) {
+	// f.printStackTrace();
+	// }
+	//
+	// foundIt = true;
+	// break;
+	// }
+	// }
+	// if (!foundIt) {
+	// display_error(Messages.runDoesNotExist);
+	// }
+	// }
 
 	// NUM <number>
 	// States allowed: RACING
@@ -603,6 +610,11 @@ public class Controller implements ActionListener {
 		if (!running) {
 			display_error(Messages.systemNotRunning);
 			return;
+		}
+
+		// Success will be printed in the run's swap method, also logic as well.
+		if (!m_run.swap()) {
+			System.out.println("Error in swap method!");
 		}
 	}
 
