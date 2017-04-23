@@ -23,7 +23,7 @@ public class Controller implements ActionListener {
 	
 	private Printer m_printer;
 	private Display m_display;
-
+	
 	private boolean running;
 	private ChronoState m_state;
 	private Competition m_comp;
@@ -598,4 +598,8 @@ public class Controller implements ActionListener {
 	public Run getRun(){
 		return m_run;
 	}
+	public Competition getComp(){
+		return m_comp;
+	}
+
 }

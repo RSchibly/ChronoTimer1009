@@ -25,16 +25,22 @@ public class TestChronoTimer extends TestCase {
 		controller.actionPerformed(new ActionEvent("null", id++, arg.toUpperCase()));
 	}
 
-	public void test3() {
+	public void testPower(){
 		action("power");
 		assertEquals(controller.isRunning(), true);
 	}
-
-	public void test4() {
-
+	
+	public void testType(){
 		action("power");
-		assertEquals(controller.isRunning(), true);
+		action("EVENT PARIND");
+		assertEquals("PARIND", controller.getComp().toString());
+		action("event ind");
+		assertEquals("IND", controller.getComp().toString());
+		action("event GRP");
+		assertEquals("GRP", controller.getComp().toString());
+		action("newrun");
 	}
+
 
 	protected void setUp() throws Exception {
 		super.setUp();
