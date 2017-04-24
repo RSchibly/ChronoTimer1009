@@ -10,7 +10,7 @@ public class Simulator {
 
 	public static void main(String[] args) {			
 		boolean isFile = false;
-		String fileFile = "GRP/grpTest.txt";
+		String fileFile = "GRP/swapTest.txt";
 		Scanner scan = new Scanner (System.in);
 		System.out.print("Are you entering a file for this simulation? (Y/N)");
 		String resp = scan.nextLine();
@@ -25,7 +25,7 @@ public class Simulator {
 			}
 		}
 		
-		Display display = new Display();
+		Display display = new Display(!isFile);
 		Printer printer = new Printer(display);
 		Controller controller = new Controller(display, printer, isFile);	
 

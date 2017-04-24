@@ -21,6 +21,7 @@ public final class Messages {
 	public static final String noRacersToStart = "No racers to start.";
 	public static final String noRacersToFinish = "No racers to finish.";
 	public static final String noDNF = "Can't use DNF in this type of Competition.";
+	public static final String noSwap = "Can't use Swap in this type of Competition.";
 	public static final String noCancel = "Can't use Cancel in this type of Competition.";
 	public static final String racerAlreadyExists = "Racer already exists.";
 	public static final String racerDoesNotExist = "Racer does not exist.";
@@ -44,7 +45,7 @@ public final class Messages {
 	public static final String clearingRacer = "Clearing racer: ";
 	public static final String cancelRacer = "Cancelling racer: ";
 	public static final String startingRacer = "Starting racer: ";
-	public static final String finishingRacer = "Finishing racer ";
+	public static final String finishingRacer = "Finishing racer: ";
 	public static final String enterRacerNum = "Please enter the Racer number: ";
 	public static final String enterRunID = "Please enter the Run ID: ";
 	

@@ -211,38 +211,19 @@ public class Controller implements ActionListener {
 			}
 		} else if (e.getActionCommand().startsWith("NUM")) {
 			// NUM <number>
-
-			if(runHistory.isEmpty() && m_state != ChronoState.RACING){
-				display_error(Messages.runNotStarted + " \"" + e.getActionCommand() + "\"");
+			String[] cmdArgs = e.getActionCommand().split(" ");
+			if (cmdArgs.length < 2) {
+				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
-			if (m_run.isGRPStartedAndFinished()) {
-				String[] cmdArgs = e.getActionCommand().split(" ");
-				if (cmdArgs.length < 2) {
-					display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
-					return;
-				}
 
-				try {
-					m_run.setGRPNumber(Integer.parseInt(cmdArgs[1]));
-				} catch (NumberFormatException ex) {
-					display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
-					return;
-				}
-			} else if (!m_run.isGRPStarted()) {
-				String[] cmdArgs = e.getActionCommand().split(" ");
-				if (cmdArgs.length < 2) {
-					display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
-					return;
-				}
-
-				try {
-					num(Integer.parseInt(cmdArgs[1]));
-				} catch (NumberFormatException ex) {
-					display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
-					return;
-				}
+			try {
+				num(Integer.parseInt(cmdArgs[1]));
+			} catch (NumberFormatException ex) {
+				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
+				return;
 			}
+			
 
 		} else if (e.getActionCommand().startsWith("CLR")) {
 			// CLR <number>
@@ -523,6 +504,7 @@ public class Controller implements ActionListener {
 		boolean foundIt = false;
 		for (Run r : runHistory) {
 			if (r.getID() == run) {
+				//TODO possibly sort r.getRacers() Collections.sort(r.getRacer......
 				for (Racer x : r.getRacers()) {
 					m_printer.printLine(x.toString());
 				}
@@ -610,19 +592,36 @@ public class Controller implements ActionListener {
 	// States allowed: RACING
 	// Set <number> as the next competitor to start.
 	private void num(int number) {
-		if (!running) {
-			display_error(Messages.systemNotRunning);
-			return;
-		}
-		if (m_state != ChronoState.RACING) {
+
+		if(runHistory.isEmpty() && m_state != ChronoState.RACING){
 			display_error(Messages.runNotStarted);
 			return;
 		}
-		if (m_run.addRacer(new Racer(number))) {
-			display(Messages.addingRacer + number);
-		} else {
-			display_error(Messages.addingRacerError + number);
+		if (m_run.isGRPStartedAndFinished()) {
+			m_run.setGRPNumber(number);
+			
+		} else if (!m_run.isGRPStarted()) {
+			if (m_run.addRacer(new Racer(number))) {
+				display(Messages.addingRacer + number);
+			} else {
+				display_error(Messages.addingRacerError + number);
+			}
 		}
+		
+//OLD CODE
+//		if (!running) {
+//			display_error(Messages.systemNotRunning);
+//			return;
+//		}
+//		if (m_state != ChronoState.RACING) {
+//			display_error(Messages.runNotStarted);
+//			return;
+//		}
+//		if (m_run.addRacer(new Racer(number))) {
+//			display(Messages.addingRacer + number);
+//		} else {
+//			display_error(Messages.addingRacerError + number);
+//		}
 	}
 
 	// CLR <number>
@@ -654,6 +653,12 @@ public class Controller implements ActionListener {
 			display_error(Messages.systemNotRunning);
 			return;
 		}
+		if (m_state != ChronoState.RACING) {
+			display_error(Messages.runNotStarted);
+			return;
+		}
+		
+		m_run.swap();
 	}
 
 	// DNF
@@ -690,7 +695,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 
-		if (m_channels[channel - 1].isEnabled() && m_channels[channel - 1].isConnected()) {
+		if (m_channels[channel - 1].isEnabled() ) {//&& m_channels[channel - 1].isConnected()) {
 			display("Tigger channel: " + channel);
 			m_run.triggerChannel(m_channels[channel - 1], getSysTime());
 		} else {

@@ -96,5 +96,20 @@ public class Lane {
 		parentController.display(Messages.finishingRacer + r.getNumber());
 		return true;
 	}
+
+	public void swap() {
+		// numLanes - 1 due to constructor incrementing it
+        if (getRunningQ().size() < 2) {
+        	//SWAP NEEDS 2 PEOPLE
+            return;
+        }
+
+        Racer tmp = getRunningQ().get(1);
+        getRunningQ().set(1, getRunningQ().get(0));
+        getRunningQ().set(0, tmp);
+
+        System.out.println("Racer " + getRunningQ().get(0).getNumber() + " passed Racer "
+                + getRunningQ().get(1).getNumber() + ".");
+	}
 	
 }

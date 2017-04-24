@@ -214,5 +214,14 @@ public class Run {
 		
 		return html;
 	}
-	
+
+	public void swap() {
+		if (raceType == Competition.IND) {
+			lanes.get(0).swap();
+		} else {
+			parentController.display_error(Messages.noSwap);
+			return;
+		}        
+    }
+
 }
