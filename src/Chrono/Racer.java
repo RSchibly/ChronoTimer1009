@@ -1,5 +1,7 @@
 package Chrono;
 
+import java.time.LocalTime;
+
 public class Racer {
 	private int racerNumber;
 	private Timer time;
@@ -22,8 +24,19 @@ public class Racer {
 	}
 
 	public String toString() {
-		// TODO possibly?
-		return "TODO";
+		return getFinishedStr();
+	}
+	
+	public String getReadyStr() {
+		return Messages.racerNumber + getNumber();
+	}
+	
+	public String getRacingStr(LocalTime time) {
+		return Messages.racerNumber + getNumber()  + ": " + Messages.racerTime + getTimer().getTimeDiff(time);
+	}
+	
+	public String getFinishedStr() {
+		return Messages.racerNumber + getNumber()  + ": " + Messages.racerTime + getTimer().toString();
 	}
 
 	@Override

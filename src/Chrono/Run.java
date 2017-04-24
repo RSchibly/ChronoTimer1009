@@ -34,6 +34,30 @@ public class Run {
 	public ArrayList<Racer> getRacers() {
 		return racers;
 	}
+	
+	public ArrayList<Racer> getReady(){
+		ArrayList<Racer> ret = new ArrayList<Racer>();
+		for(Lane l : lanes) {
+			ret.addAll(l.getReadyQ());
+		}
+		return ret;
+	}
+	
+	public ArrayList<Racer> getRacing(){
+		ArrayList<Racer> ret = new ArrayList<Racer>();
+		for(Lane l : lanes) {
+			ret.addAll(l.getRunningQ());
+		}
+		return ret;
+	}
+	
+	public ArrayList<Racer> getFinished(){
+		ArrayList<Racer> ret = new ArrayList<Racer>();
+		for(Lane l : lanes) {
+			ret.addAll(l.getFinishedQ());
+		}
+		return ret;
+	}
 
 	public Lane getLane(int laneNumber) {
 		return lanes.get(laneNumber);

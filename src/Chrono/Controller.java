@@ -2,13 +2,9 @@ package Chrono;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataOutputStream;
 import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.util.ArrayList;
-
-import javax.swing.text.GapContent;
-
 import com.google.gson.Gson;
 
 import Chrono.Channel.Sensor;
@@ -21,30 +17,58 @@ public class Controller implements ActionListener {
 	}
 
 	public enum Competition {
-		IND, PARIND, GRP, PARGRP
+		IND("Individual"), PARIND("Parallel Individual"), GRP("Group"), PARGRP("Parallel Group");
+		private final String display;
+		  private Competition(String s) {
+		    display = s;
+		  }
+		  @Override
+		  public String toString() {
+		    return display;
+		  }
 	}
 
 	private Printer m_printer;
 	private Display m_display;
 
 	private boolean running;
+	private boolean fromFile;
 	private ChronoState m_state;
+	public ChronoState getState() {
+		return m_state;
+	}
+
 	private Competition m_comp;
 
 	// Holds the offset time
 	private LocalTime m_sysTime;
 
+	public LocalTime getSysTime() {
+		if(m_sysTime != null && fromFile) return m_sysTime;
+		else return LocalTime.now();
+	}
+
 	private Channel[] m_channels;
+	public Channel getChannel(int channelIndex) {
+		return m_channels[channelIndex-1];
+	}
+
 	private Run m_run;
 	private int runID;
+	public int getRunID() {
+		return runID;
+	}
+
 	private ArrayList<Run> runHistory;
 
-	public Controller(Display display, Printer printer) {
+	public Controller(Display display, Printer printer, boolean fromFile) {
+		this.fromFile = fromFile;
 		m_display = display;
 		m_printer = printer;
 		runHistory = new ArrayList<Run>();
 		running = false;
 		m_state = ChronoState.OFF;
+		m_sysTime = null;
 	}
 
 	@Override
@@ -261,7 +285,6 @@ public class Controller implements ActionListener {
 		else {
 			display_error(Messages.cmdNotRecognized);
 		}
-
 	}
 
 	public boolean isRunning() {
@@ -277,14 +300,38 @@ public class Controller implements ActionListener {
 	}
 
 	public void display(String display) {
-		m_display.display(display);
+		m_display.displayStr(display);
 	}
 
 	public void display_error(String errorMessage, boolean ignored) {
 		// Add to event log and/or do something with error
-		m_display.displayError(errorMessage);
+		m_display.displayErr(errorMessage);
 		if (!ignored)
 			System.exit(1);
+	}
+	
+	public String getReadyText() {
+		String ret = "";
+		for(Racer r : m_run.getReady()) {
+			ret += r.getReadyStr() + "\n";
+		}
+		return ret;
+	}
+	
+	public String getRacingText() {
+		String ret = "";
+		for(Racer r : m_run.getRacing()) {
+			ret += r.getRacingStr(getSysTime()) + "\n";
+		}
+		return ret;
+	}
+	
+	public String getFinishedText() {
+		String ret = "";
+		for(Racer r : m_run.getFinished()) {
+			ret += r.getFinishedStr() + "\n";
+		}
+		return ret;
 	}
 
 	// POWER
@@ -295,14 +342,15 @@ public class Controller implements ActionListener {
 	private void power() {
 		if (running) {
 			running = false;
-
 			display(Messages.powerDown);
+			m_display.powerOff();
 		} else {
 			// resets system to initial state
 			// Basically like a "restart" on a computer
 			running = true;
 			reset();
 			display(Messages.powerOn);
+			m_display.powerOn(this);
 		}
 	}
 
@@ -369,7 +417,6 @@ public class Controller implements ActionListener {
 	// States allowed: ALL
 	// Connect a sensor(of type specified) to the channel specified.
 	private void connect(Sensor sensor, int channel) {
-		// TODO Later
 		if (!running) {
 			display_error(Messages.systemNotRunning);
 			return;
@@ -392,7 +439,6 @@ public class Controller implements ActionListener {
 	// States allowed: ALL
 	// Disconnect a sensor from the channel specified.
 	private void disconnect(int channel) {
-		// TODO Later
 		if (!running) {
 			display_error(Messages.systemNotRunning);
 			return;
@@ -478,8 +524,7 @@ public class Controller implements ActionListener {
 		for (Run r : runHistory) {
 			if (r.getID() == run) {
 				for (Racer x : r.getRacers()) {
-					m_printer.print(
-							Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
+					m_printer.printLine(x.toString());
 				}
 				foundIt = true;
 				break;
@@ -645,13 +690,14 @@ public class Controller implements ActionListener {
 			return;
 		}
 
-		if (m_channels[channel - 1].isEnabled()) {
+		if (m_channels[channel - 1].isEnabled() && m_channels[channel - 1].isConnected()) {
 			display("Tigger channel: " + channel);
-			m_run.triggerChannel(m_channels[channel - 1], m_sysTime);
+			m_run.triggerChannel(m_channels[channel - 1], getSysTime());
 		} else {
-			display_error(Messages.channelDisabled + channel);
+			if(!m_channels[channel - 1].isEnabled()) display_error(Messages.channelDisabled + channel);
+			if(!m_channels[channel - 1].isConnected()) display_error(Messages.channelDisconnected + channel);
 		}
-
+		
 	}
 
 	// CANCEL

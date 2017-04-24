@@ -1,7 +1,17 @@
 package Chrono;
 
 public class Channel {
-	public enum Sensor {NONE, EYE, GATE, PAD}
+	public enum Sensor {
+		NONE(" "), EYE("Eye Sensor"), GATE("Gate Sensor"), PAD("Pad Sensor");
+		private final String display;
+		  private Sensor(String s) {
+		    display = s;
+		  }
+		  @Override
+		  public String toString() {
+		    return display;
+		  }
+	}
 	public enum TriggerType {START, FINISH, UNASSIGNED};
 	private boolean enabled;
 	private boolean connected;

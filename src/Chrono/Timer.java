@@ -34,9 +34,13 @@ public class Timer {
 		if (DNF) {
 			return Messages.DNF;
 		}else {
-			LocalTime dur = end.minusHours(start.getHour()).minusMinutes(start.getMinute()).minusSeconds(start.getSecond()).minusNanos(start.getNano());
-			return dur.getHour() + ":" + dur.getMinute() + ":" + dur.getSecond() + "." + Integer.toString(dur.getNano()).substring(0, 1);
+			return getTimeDiff(end);
 		}		
+	}
+	
+	public String getTimeDiff(LocalTime time) {
+		LocalTime dur = time.minusHours(start.getHour()).minusMinutes(start.getMinute()).minusSeconds(start.getSecond()).minusNanos(start.getNano());
+		return dur.getHour() + ":" + dur.getMinute() + ":" + dur.getSecond() + "." + Integer.toString(dur.getNano()).substring(0, 1);
 	}
 	
 	public boolean isDNF() {
