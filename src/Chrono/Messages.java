@@ -16,6 +16,7 @@ public final class Messages {
 	public static final String addingRacerError = "Failed to add racer: ";
 	public static final String clearingRacerError = "Failed to clear racer: ";
 	public static final String channelDisabled = "Channel currently disabled: ";
+	public static final String channelDisconnected = "Channel currently disconnected: ";
 	public static final String noRacersRunning = "No racers currently running.";
 	public static final String noRacersToStart = "No racers to start.";
 	public static final String noRacersToFinish = "No racers to finish.";
@@ -44,5 +45,7 @@ public final class Messages {
 	public static final String cancelRacer = "Cancelling racer: ";
 	public static final String startingRacer = "Starting racer: ";
 	public static final String finishingRacer = "Finishing racer ";
+	public static final String enterRacerNum = "Please enter the Racer number: ";
+	public static final String enterRunID = "Please enter the Run ID: ";
 	
 }
