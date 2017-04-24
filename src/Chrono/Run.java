@@ -102,7 +102,7 @@ public class Run {
 					lanes.get(0).getRunningQ().getFirst().setNumber(groupNumCounter++);
 					lanes.get(0).finishNext(time);
 					// This is used to change the numbers of the racers after
-					// all the raceres are done racing
+					// all the racers are done racing
 					if (lanes.get(0).getRunningQ().isEmpty() && lanes.get(0).getReadyQ().isEmpty()) {
 						groupNumCounter = 0;
 					}

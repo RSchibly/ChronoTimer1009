@@ -695,7 +695,7 @@ public class Controller implements ActionListener {
 			return;
 		}
 
-		if (m_channels[channel - 1].isEnabled() ) {//&& m_channels[channel - 1].isConnected()) {
+		if (m_channels[channel - 1].isEnabled() && m_channels[channel - 1].isConnected()) {
 			display("Tigger channel: " + channel);
 			m_run.triggerChannel(m_channels[channel - 1], getSysTime());
 		} else {
