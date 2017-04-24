@@ -187,6 +187,11 @@ public class Controller implements ActionListener {
 			}
 		} else if (e.getActionCommand().startsWith("NUM")) {
 			// NUM <number>
+
+			if(runHistory.isEmpty() && m_state != ChronoState.RACING){
+				display_error(Messages.runNotStarted + " \"" + e.getActionCommand() + "\"");
+				return;
+			}
 			if (m_run.isGRPStartedAndFinished()) {
 				String[] cmdArgs = e.getActionCommand().split(" ");
 				if (cmdArgs.length < 2) {
