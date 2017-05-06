@@ -1,0 +1,22 @@
+        table{
+            width: 800px;
+            text-align:center;
+        }
+        tr:header{
+            color:blue;
+        }
+        tr, td{
+            
+        }
+        tr.Eemployee, tr.Oemployee{
+            font-size: 14px;
+        }
+        tr.Eemployee:nth-child(even){
+            background-color:#efefef;
+        }
+        
+        th{
+            font-size: 22px;
+            border-bottom: 2px solid #111111;
+            border-top: 1px solid #999;
+        }
