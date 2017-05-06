@@ -19,13 +19,15 @@ public class Controller implements ActionListener {
 	public enum Competition {
 		IND("Individual"), PARIND("Parallel Individual"), GRP("Group"), PARGRP("Parallel Group");
 		private final String display;
-		  private Competition(String s) {
-		    display = s;
-		  }
-		  @Override
-		  public String toString() {
-		    return display;
-		  }
+
+		private Competition(String s) {
+			display = s;
+		}
+
+		@Override
+		public String toString() {
+			return display;
+		}
 	}
 
 	private Printer m_printer;
@@ -34,6 +36,7 @@ public class Controller implements ActionListener {
 	private boolean running;
 	private boolean fromFile;
 	private ChronoState m_state;
+
 	public ChronoState getState() {
 		return m_state;
 	}
@@ -44,17 +47,21 @@ public class Controller implements ActionListener {
 	private LocalTime m_sysTime;
 
 	public LocalTime getSysTime() {
-		if(m_sysTime != null && fromFile) return m_sysTime;
-		else return LocalTime.now();
+		if (m_sysTime != null && fromFile)
+			return m_sysTime;
+		else
+			return LocalTime.now();
 	}
 
 	private Channel[] m_channels;
+
 	public Channel getChannel(int channelIndex) {
-		return m_channels[channelIndex-1];
+		return m_channels[channelIndex - 1];
 	}
 
 	private Run m_run;
 	private int runID;
+
 	public int getRunID() {
 		return runID;
 	}
@@ -223,7 +230,6 @@ public class Controller implements ActionListener {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
-			
 
 		} else if (e.getActionCommand().startsWith("CLR")) {
 			// CLR <number>
@@ -290,26 +296,26 @@ public class Controller implements ActionListener {
 		if (!ignored)
 			System.exit(1);
 	}
-	
+
 	public String getReadyText() {
 		String ret = "";
-		for(Racer r : m_run.getReady()) {
+		for (Racer r : m_run.getReady()) {
 			ret += r.getReadyStr() + "\n";
 		}
 		return ret;
 	}
-	
+
 	public String getRacingText() {
 		String ret = "";
-		for(Racer r : m_run.getRacing()) {
+		for (Racer r : m_run.getRacing()) {
 			ret += r.getRacingStr(getSysTime()) + "\n";
 		}
 		return ret;
 	}
-	
+
 	public String getFinishedText() {
 		String ret = "";
-		for(Racer r : m_run.getFinished()) {
+		for (Racer r : m_run.getFinished()) {
 			ret += r.getFinishedStr() + "\n";
 		}
 		return ret;
@@ -504,7 +510,8 @@ public class Controller implements ActionListener {
 		boolean foundIt = false;
 		for (Run r : runHistory) {
 			if (r.getID() == run) {
-				//TODO possibly sort r.getRacers() Collections.sort(r.getRacer......
+				// TODO possibly sort r.getRacers()
+				// Collections.sort(r.getRacer......
 				for (Racer x : r.getRacers()) {
 					m_printer.printLine(x.toString());
 				}
@@ -549,57 +556,57 @@ public class Controller implements ActionListener {
 		}
 	}
 
-	//TODO
-//	private void HTMLExport(int run) {
-//		if (!running) {
-//			display_error(Messages.systemNotRunning);
-//			return;
-//		}
-//		String html;
-//		Gson g = new Gson();
-//		boolean foundIt = false;
-//		for (Run r : runHistory) {
-//			if (r.getID() == run) {
-//				// TODO: Error-causing POST Request
-//				try {
-//					// now create a POST request
-//					conn.setRequestMethod("POST");
-//					conn.setDoOutput(true);
-//					conn.setDoInput(true);
-//					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-//
-//					// build a string that contains JSON from console
-//					html = g.toJson(r.getHTMLRun());
-//
-//					// write out string to output buffer for message
-//					out.writeBytes(html);
-//					out.flush(); // cleans up the buffer
-//					out.close(); // sends it to the server
-//				} catch (Exception f) {
-//					f.printStackTrace();
-//				}
-//
-//				foundIt = true;
-//				break;
-//			}
-//		}
-//		if (!foundIt) {
-//			display_error(Messages.runDoesNotExist);
-//		}
-//	}
+	// TODO
+	// private void HTMLExport(int run) {
+	// if (!running) {
+	// display_error(Messages.systemNotRunning);
+	// return;
+	// }
+	// String html;
+	// Gson g = new Gson();
+	// boolean foundIt = false;
+	// for (Run r : runHistory) {
+	// if (r.getID() == run) {
+	// // TODO: Error-causing POST Request
+	// try {
+	// // now create a POST request
+	// conn.setRequestMethod("POST");
+	// conn.setDoOutput(true);
+	// conn.setDoInput(true);
+	// DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+	//
+	// // build a string that contains JSON from console
+	// html = g.toJson(r.getHTMLRun());
+	//
+	// // write out string to output buffer for message
+	// out.writeBytes(html);
+	// out.flush(); // cleans up the buffer
+	// out.close(); // sends it to the server
+	// } catch (Exception f) {
+	// f.printStackTrace();
+	// }
+	//
+	// foundIt = true;
+	// break;
+	// }
+	// }
+	// if (!foundIt) {
+	// display_error(Messages.runDoesNotExist);
+	// }
+	// }
 
 	// NUM <number>
 	// States allowed: RACING
 	// Set <number> as the next competitor to start.
 	private void num(int number) {
 
-		if(runHistory.isEmpty() && m_state != ChronoState.RACING){
+		if (runHistory.isEmpty() && m_state != ChronoState.RACING) {
 			display_error(Messages.runNotStarted);
 			return;
 		}
 		if (m_run.isGRPStartedAndFinished()) {
 			m_run.setGRPNumber(number);
-			
+
 		} else if (!m_run.isGRPStarted()) {
 			if (m_run.addRacer(new Racer(number))) {
 				display(Messages.addingRacer + number);
@@ -607,21 +614,21 @@ public class Controller implements ActionListener {
 				display_error(Messages.addingRacerError + number);
 			}
 		}
-		
-//OLD CODE
-//		if (!running) {
-//			display_error(Messages.systemNotRunning);
-//			return;
-//		}
-//		if (m_state != ChronoState.RACING) {
-//			display_error(Messages.runNotStarted);
-//			return;
-//		}
-//		if (m_run.addRacer(new Racer(number))) {
-//			display(Messages.addingRacer + number);
-//		} else {
-//			display_error(Messages.addingRacerError + number);
-//		}
+
+		// OLD CODE
+		// if (!running) {
+		// display_error(Messages.systemNotRunning);
+		// return;
+		// }
+		// if (m_state != ChronoState.RACING) {
+		// display_error(Messages.runNotStarted);
+		// return;
+		// }
+		// if (m_run.addRacer(new Racer(number))) {
+		// display(Messages.addingRacer + number);
+		// } else {
+		// display_error(Messages.addingRacerError + number);
+		// }
 	}
 
 	// CLR <number>
@@ -657,7 +664,7 @@ public class Controller implements ActionListener {
 			display_error(Messages.runNotStarted);
 			return;
 		}
-		
+
 		m_run.swap();
 	}
 
@@ -696,13 +703,15 @@ public class Controller implements ActionListener {
 		}
 
 		if (m_channels[channel - 1].isEnabled() && m_channels[channel - 1].isConnected()) {
-			display("Tigger channel: " + channel);
+			display("Trigger channel: " + channel);
 			m_run.triggerChannel(m_channels[channel - 1], getSysTime());
 		} else {
-			if(!m_channels[channel - 1].isEnabled()) display_error(Messages.channelDisabled + channel);
-			if(!m_channels[channel - 1].isConnected()) display_error(Messages.channelDisconnected + channel);
+			if (!m_channels[channel - 1].isEnabled())
+				display_error(Messages.channelDisabled + channel);
+			if (!m_channels[channel - 1].isConnected())
+				display_error(Messages.channelDisconnected + channel);
 		}
-		
+
 	}
 
 	// CANCEL
