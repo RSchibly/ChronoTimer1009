@@ -24,20 +24,25 @@ public class Controller implements ActionListener {
 	}
 
 	public enum Competition {
-		IND("Individual"), PARIND("Parallel Individual"), GRP("Group"), PARGRP("Parallel Group");
+		IND("Individual", "IND"), PARIND("Parallel Individual", "PARIND"), GRP("Group", "GRP"), PARGRP("Parallel Group", "PARGRP");
 		private final String display;
-		private Competition(String s) {
-			display = s;
+		private final String abbreviation;
+		private Competition(String d, String a) {
+			display = d;
+			abbreviation = a;
 		}
 		@Override
 		public String toString() {
 			return display;
 		}
+		public String toShortStr(){
+			return abbreviation;
+		}
 	}
 
 	private Printer m_printer;
 	private Display m_display;
-
+	
 	private boolean running;
 	private boolean fromFile;
 	private ChronoState m_state;
@@ -791,4 +796,12 @@ public class Controller implements ActionListener {
 		if (number > 0)
 			display(Messages.cancelRacer + number);
 	}
+	
+	public Run getRun(){
+		return m_run;
+	}
+	public Competition getComp(){
+		return m_comp;
+	}
+
 }
