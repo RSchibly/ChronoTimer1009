@@ -2,6 +2,7 @@
  * Simple HTTP handler for testing ChronoTimer
  */
 package Server;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,30 +33,26 @@ public class ChronoServer {
 	public static void main(String[] args) throws Exception {
 
 		try{
-		scan = new Scanner(fileName);
+		scan = new Scanner(new File(fileName));
 		}catch(Exception e){
 			System.err.println("No Bib-Name pairs found.");
 		}
 		
 		//Create NameMap database
-		ArrayList <String> input = new ArrayList<String>();
-//		while(scan.hasNextLine()){
-//			input.add(scan.nextLine());
-//			
-//			
-//			String currentLine = scan.nextLine();
-//			
-//			String bib = scan.next().trim();
-//			String name = scan.next().trim();
-//			
-//			Integer bibNum = new Integer(bib);
-//			
-//			nameMap.put(bibNum, name);
-//			
-//			
-//			
-//			
-//		}
+		while(scan.hasNextLine()){
+			String line = scan.nextLine();
+			
+			String[] parts = line.split(":");
+			//System.out.println(parts[0]);
+			int bibNum = Integer.parseInt(parts[0]);
+			String name = parts[1];
+			
+			nameMap.put(bibNum, name);
+			
+			
+			
+			
+		}
 		
 		// How to grab css
 		// server.createContext("/style.css", new StaticFileServer());

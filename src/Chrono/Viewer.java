@@ -548,7 +548,7 @@ public class Viewer extends JFrame {
 		keypadPanel.add(btnKey7, "cell 0 2,growx");
 		
 		JButton btnKey8 = new JButton("8");
-		btnKey8.setActionCommand("1");
+		btnKey8.setActionCommand("8");
 		btnKey8.addActionListener(keyPadListener);
 		keypadPanel.add(btnKey8, "cell 1 2,growx");
 		
