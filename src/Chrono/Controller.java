@@ -2,7 +2,14 @@ package Chrono;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import com.google.gson.Gson;
@@ -19,13 +26,13 @@ public class Controller implements ActionListener {
 	public enum Competition {
 		IND("Individual"), PARIND("Parallel Individual"), GRP("Group"), PARGRP("Parallel Group");
 		private final String display;
-		  private Competition(String s) {
-		    display = s;
-		  }
-		  @Override
-		  public String toString() {
-		    return display;
-		  }
+		private Competition(String s) {
+			display = s;
+		}
+		@Override
+		public String toString() {
+			return display;
+		}
 	}
 
 	private Printer m_printer;
@@ -223,7 +230,7 @@ public class Controller implements ActionListener {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
-			
+
 
 		} else if (e.getActionCommand().startsWith("CLR")) {
 			// CLR <number>
@@ -290,7 +297,7 @@ public class Controller implements ActionListener {
 		if (!ignored)
 			System.exit(1);
 	}
-	
+
 	public String getReadyText() {
 		String ret = "";
 		for(Racer r : m_run.getReady()) {
@@ -298,7 +305,7 @@ public class Controller implements ActionListener {
 		}
 		return ret;
 	}
-	
+
 	public String getRacingText() {
 		String ret = "";
 		for(Racer r : m_run.getRacing()) {
@@ -306,7 +313,7 @@ public class Controller implements ActionListener {
 		}
 		return ret;
 	}
-	
+
 	public String getFinishedText() {
 		String ret = "";
 		for(Racer r : m_run.getFinished()) {
@@ -485,7 +492,13 @@ public class Controller implements ActionListener {
 			return;
 		}
 		m_run.endRun();
+		
+			ArrayList<Racer> toJson = m_run.getRacers();
 
+			for(Racer r: toJson){
+				upload(r);
+			}
+			
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
 		display(Messages.endingRun + runID++);
@@ -549,44 +562,100 @@ public class Controller implements ActionListener {
 		}
 	}
 
+	//TODO: "Client" method that uploads ended run to server
+	private void upload(Racer r){
+		String content = "";
+		Gson g = new Gson();
+
+		try {
+
+			// Client will connect to this location
+			URL site = new URL("http://localhost:8000/sendresults");
+
+			//connect to the socket, server already has socket open
+			final HttpURLConnection conn = (HttpURLConnection) site.openConnection();
+
+			//now create a POST request
+			conn.setRequestMethod("POST");
+
+			//not sure what this does
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+
+			//creating output "channel"/data stream - client to server, output from client
+			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+
+			// build a JSON string of the race and add it to the package to be sent
+			content = "ADD:" + g.toJson(r);
+			//Packages it all up and sends to the server
+			// write out string to output buffer for message
+			out.writeBytes(content);
+			out.flush(); // cleans up the buffer
+			out.close(); // sends it to the server
+
+			//reads the response from the server after post, complete connection with input stream
+			InputStreamReader inputStr = new InputStreamReader(conn.getInputStream());
+
+			//creating the response from server
+			StringBuilder sb = new StringBuilder();
+
+			// read the characters from the request byte by byte and build up
+			// the Response
+			int nextChar;
+			while ((nextChar = inputStr.read()) > -1) {
+				sb = sb.append((char) nextChar);
+			}
+			System.out.println("Return String: " + sb);
+
+		} catch (UnknownHostException e) {
+			display_error(Messages.serverConnection);
+		} catch (ConnectException e) {
+			display_error(Messages.serverConnection);
+		} catch (IOException e){
+			display_error(Messages.serverConnection);
+		}
+
+	}
+
+
 	//TODO
-//	private void HTMLExport(int run) {
-//		if (!running) {
-//			display_error(Messages.systemNotRunning);
-//			return;
-//		}
-//		String html;
-//		Gson g = new Gson();
-//		boolean foundIt = false;
-//		for (Run r : runHistory) {
-//			if (r.getID() == run) {
-//				// TODO: Error-causing POST Request
-//				try {
-//					// now create a POST request
-//					conn.setRequestMethod("POST");
-//					conn.setDoOutput(true);
-//					conn.setDoInput(true);
-//					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-//
-//					// build a string that contains JSON from console
-//					html = g.toJson(r.getHTMLRun());
-//
-//					// write out string to output buffer for message
-//					out.writeBytes(html);
-//					out.flush(); // cleans up the buffer
-//					out.close(); // sends it to the server
-//				} catch (Exception f) {
-//					f.printStackTrace();
-//				}
-//
-//				foundIt = true;
-//				break;
-//			}
-//		}
-//		if (!foundIt) {
-//			display_error(Messages.runDoesNotExist);
-//		}
-//	}
+	//	private void HTMLExport(int run) {
+	//		if (!running) {
+	//			display_error(Messages.systemNotRunning);
+	//			return;
+	//		}
+	//		String html;
+	//		Gson g = new Gson();
+	//		boolean foundIt = false;
+	//		for (Run r : runHistory) {
+	//			if (r.getID() == run) {
+	//				// TODO: Error-causing POST Request
+	//				try {
+	//					// now create a POST request
+	//					conn.setRequestMethod("POST");
+	//					conn.setDoOutput(true);
+	//					conn.setDoInput(true);
+	//					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+	//
+	//					// build a string that contains JSON from console
+	//					html = g.toJson(r.getHTMLRun());
+	//
+	//					// write out string to output buffer for message
+	//					out.writeBytes(html);
+	//					out.flush(); // cleans up the buffer
+	//					out.close(); // sends it to the server
+	//				} catch (Exception f) {
+	//					f.printStackTrace();
+	//				}
+	//
+	//				foundIt = true;
+	//				break;
+	//			}
+	//		}
+	//		if (!foundIt) {
+	//			display_error(Messages.runDoesNotExist);
+	//		}
+	//	}
 
 	// NUM <number>
 	// States allowed: RACING
@@ -599,7 +668,7 @@ public class Controller implements ActionListener {
 		}
 		if (m_run.isGRPStartedAndFinished()) {
 			m_run.setGRPNumber(number);
-			
+
 		} else if (!m_run.isGRPStarted()) {
 			if (m_run.addRacer(new Racer(number))) {
 				display(Messages.addingRacer + number);
@@ -607,21 +676,21 @@ public class Controller implements ActionListener {
 				display_error(Messages.addingRacerError + number);
 			}
 		}
-		
-//OLD CODE
-//		if (!running) {
-//			display_error(Messages.systemNotRunning);
-//			return;
-//		}
-//		if (m_state != ChronoState.RACING) {
-//			display_error(Messages.runNotStarted);
-//			return;
-//		}
-//		if (m_run.addRacer(new Racer(number))) {
-//			display(Messages.addingRacer + number);
-//		} else {
-//			display_error(Messages.addingRacerError + number);
-//		}
+
+		//OLD CODE
+		//		if (!running) {
+		//			display_error(Messages.systemNotRunning);
+		//			return;
+		//		}
+		//		if (m_state != ChronoState.RACING) {
+		//			display_error(Messages.runNotStarted);
+		//			return;
+		//		}
+		//		if (m_run.addRacer(new Racer(number))) {
+		//			display(Messages.addingRacer + number);
+		//		} else {
+		//			display_error(Messages.addingRacerError + number);
+		//		}
 	}
 
 	// CLR <number>
@@ -657,7 +726,7 @@ public class Controller implements ActionListener {
 			display_error(Messages.runNotStarted);
 			return;
 		}
-		
+
 		m_run.swap();
 	}
 
@@ -702,7 +771,7 @@ public class Controller implements ActionListener {
 			if(!m_channels[channel - 1].isEnabled()) display_error(Messages.channelDisabled + channel);
 			if(!m_channels[channel - 1].isConnected()) display_error(Messages.channelDisconnected + channel);
 		}
-		
+
 	}
 
 	// CANCEL
