@@ -8,7 +8,7 @@ public class Lane {
 	private int laneNum;
 	private Controller parentController;
 	private LinkedList<Racer> readyQ, runningQ, finishedQ;
-	
+
 	public Lane(int laneNum, Controller parentController) {
 		this.laneNum = laneNum;
 		this.parentController = parentController;
@@ -16,11 +16,11 @@ public class Lane {
 		this.runningQ = new LinkedList<Racer>();
 		this.finishedQ = new LinkedList<Racer>();
 	}
-	
+
 	public int getLaneNum() {
 		return laneNum;
 	}
-	
+
 	public LinkedList<Racer> getReadyQ() {
 		return readyQ;
 	}
@@ -40,15 +40,13 @@ public class Lane {
 	public void removeRacer(Racer racer) {
 		if (readyQ.contains(racer)) {
 			readyQ.remove(racer);
-		}
-		else if (runningQ.contains(racer)) {
+		} else if (runningQ.contains(racer)) {
 			runningQ.remove(racer);
-		}
-		else if (finishedQ.contains(racer)) {
+		} else if (finishedQ.contains(racer)) {
 			finishedQ.remove(racer);
 		}
 	}
-	
+
 	public int dnf() {
 		if (runningQ.isEmpty()) {
 			parentController.display_error(Messages.noRacersRunning);
@@ -68,11 +66,11 @@ public class Lane {
 		readyQ.addFirst(r);
 		return r.getNumber();
 	}
-	
+
 	public int getSize() {
 		return readyQ.size() + runningQ.size() + finishedQ.size();
 	}
-	
+
 	public boolean startNext(LocalTime time) {
 		if (readyQ.isEmpty()) {
 			parentController.display_error(Messages.noRacersToStart);
@@ -84,7 +82,7 @@ public class Lane {
 		parentController.display(Messages.startingRacer + r.getNumber());
 		return true;
 	}
-	
+
 	public boolean finishNext(LocalTime time) {
 		if (runningQ.isEmpty()) {
 			parentController.display_error(Messages.noRacersToFinish);
@@ -96,5 +94,32 @@ public class Lane {
 		parentController.display(Messages.finishingRacer + r.getNumber());
 		return true;
 	}
-	
+
+	public boolean finish(LocalTime time, int chan) {
+		if (runningQ.isEmpty()) {
+			parentController.display_error(Messages.noRacersToFinish);
+			return false;
+		}
+		Racer r = runningQ.remove(chan);
+		r.getTimer().Stop(time);
+		finishedQ.addLast(r);
+		parentController.display(Messages.finishingRacer + r.getNumber());
+		return true;
+	}
+
+	public void swap() {
+		// numLanes - 1 due to constructor incrementing it
+		if (getRunningQ().size() < 2) {
+			// SWAP NEEDS 2 PEOPLE
+			return;
+		}
+
+		Racer tmp = getRunningQ().get(1);
+		getRunningQ().set(1, getRunningQ().get(0));
+		getRunningQ().set(0, tmp);
+
+		System.out.println("Racer " + getRunningQ().get(0).getNumber() + " passed Racer "
+				+ getRunningQ().get(1).getNumber() + ".");
+	}
+
 }

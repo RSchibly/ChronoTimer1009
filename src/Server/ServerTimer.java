@@ -1,13 +1,13 @@
-package Chrono;
+package Server;
 
 import java.time.LocalTime;
 
-public class Timer {
+public class ServerTimer {
 	private LocalTime start;
 	private LocalTime end;
 	private boolean DNF;
 
-	public Timer() {
+	public ServerTimer() {
 		setDNF(true);
 		start = null;
 		end = null;
@@ -32,7 +32,7 @@ public class Timer {
 
 	public String toString() {
 		if (DNF) {
-			return Messages.DNF;
+			return "DNF";
 		}else {
 			return getTimeDiff(end);
 		}		

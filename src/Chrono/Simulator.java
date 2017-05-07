@@ -3,14 +3,14 @@ package Chrono;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.time.LocalTime;
 import java.util.Scanner;
+
 
 public class Simulator {
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {			
 		boolean isFile = false;
-		String fileFile = "testOutOfRun.txt";
+		String fileFile = "GRP/grpTest.txt";
 		Scanner scan = new Scanner (System.in);
 		System.out.print("Are you entering a file for this simulation? (Y/N)");
 		String resp = scan.nextLine();
@@ -25,14 +25,13 @@ public class Simulator {
 			}
 		}
 		
-		Display display = new CommandLineDisplay();
-		Printer printer = new Printer();
-		Controller controller = new Controller(display, printer);
+		Display display = new Display(!isFile);
+		Printer printer = new Printer(display);
+		Controller controller = new Controller(display, printer, isFile);	
 
 		// Main event loop
 		while (scan.hasNextLine()) {
 			ActionEvent cmdAction = null;
-			int id = ActionEvent.ACTION_FIRST;
 			String cmd = scan.nextLine().toUpperCase();
 			
 			if(isFile){
@@ -41,17 +40,14 @@ public class Simulator {
 			
 				System.out.println(parsedCmd);
 				
-				cmdAction = new ActionEvent(scan, id++, parsedCmd);
-				controller.actionPerformed(new ActionEvent(scan, id++, "TIME " + parsedTime));
+				cmdAction = new ActionEvent(scan, ActionEvent.ACTION_PERFORMED, parsedCmd);
+				controller.actionPerformed(new ActionEvent(scan, ActionEvent.ACTION_PERFORMED, "TIME " + parsedTime));
 			}
 			else {
-				controller.actionPerformed(new ActionEvent(scan, id++, "TIME "
-						+ LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + ":" + LocalTime.now().getSecond() + ".0"));
-				cmdAction = new ActionEvent(scan, id++, cmd);
+				
+				cmdAction = new ActionEvent(scan, ActionEvent.ACTION_PERFORMED, cmd);
 			}
 
-			//To make sure id doesn't go out of acceptable bounds
-			if(id > ActionEvent.ACTION_LAST) id = ActionEvent.ACTION_FIRST;
 			controller.actionPerformed(cmdAction);
 			
 			//Fixes java buffer issue with std streams
@@ -59,6 +55,9 @@ public class Simulator {
 			System.err.flush();
 			
 		}
+				
+		
+		
 
 	}
 

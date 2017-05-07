@@ -2,10 +2,16 @@ package Chrono;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.time.LocalTime;
 import java.util.ArrayList;
-
 import com.google.gson.Gson;
 
 import Chrono.Channel.Sensor;
@@ -18,30 +24,58 @@ public class Controller implements ActionListener {
 	}
 
 	public enum Competition {
-		IND, PARIND, GRP, PARGRP
+		IND("Individual"), PARIND("Parallel Individual"), GRP("Group"), PARGRP("Parallel Group");
+		private final String display;
+		private Competition(String s) {
+			display = s;
+		}
+		@Override
+		public String toString() {
+			return display;
+		}
 	}
-	
+
 	private Printer m_printer;
 	private Display m_display;
 	
 	private boolean running;
+	private boolean fromFile;
 	private ChronoState m_state;
+	public ChronoState getState() {
+		return m_state;
+	}
+
 	private Competition m_comp;
 
 	// Holds the offset time
 	private LocalTime m_sysTime;
 
+	public LocalTime getSysTime() {
+		if(m_sysTime != null && fromFile) return m_sysTime;
+		else return LocalTime.now();
+	}
+
 	private Channel[] m_channels;
+	public Channel getChannel(int channelIndex) {
+		return m_channels[channelIndex-1];
+	}
+
 	private Run m_run;
 	private int runID;
+	public int getRunID() {
+		return runID;
+	}
+
 	private ArrayList<Run> runHistory;
 
-	public Controller(Display display, Printer printer) {
+	public Controller(Display display, Printer printer, boolean fromFile) {
+		this.fromFile = fromFile;
 		m_display = display;
 		m_printer = printer;
 		runHistory = new ArrayList<Run>();
 		running = false;
 		m_state = ChronoState.OFF;
+		m_sysTime = null;
 	}
 
 	@Override
@@ -53,21 +87,31 @@ public class Controller implements ActionListener {
 		else if (e.getActionCommand().startsWith("RESET"))
 			reset();
 		else if (e.getActionCommand().startsWith("TIME")) {
-			// TIME <hour>:<min>:<sec>
+			// TIME <hour>:<min>:<sec>:<nano>
 			String[] cmdArgs = e.getActionCommand().split(" ");
 			if (cmdArgs.length < 2) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
+<<<<<<< HEAD
 			String[] timeArgs = cmdArgs[1].split(":");
+=======
+			// splits on ":" or "."
+			String[] timeArgs = cmdArgs[1].split(":|\\.");
+>>>>>>> develop
 			if (timeArgs.length < 4) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
+<<<<<<< HEAD
 				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]), Double.parseDouble(timeArgs[3]));
+=======
+				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]),
+						Double.parseDouble(timeArgs[3]));
+>>>>>>> develop
 			} catch (NumberFormatException ex) {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
@@ -194,6 +238,8 @@ public class Controller implements ActionListener {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
+
+
 		} else if (e.getActionCommand().startsWith("CLR")) {
 			// CLR <number>
 			String[] cmdArgs = e.getActionCommand().split(" ");
@@ -235,7 +281,6 @@ public class Controller implements ActionListener {
 		else {
 			display_error(Messages.cmdNotRecognized);
 		}
-
 	}
 
 	public boolean isRunning() {
@@ -249,14 +294,40 @@ public class Controller implements ActionListener {
 	public void display_error(String errorMessage) {
 		display_error(errorMessage, true);
 	}
-	
+
 	public void display(String display) {
-		m_display.display(display);
+		m_display.displayStr(display);
 	}
 
 	public void display_error(String errorMessage, boolean ignored) {
 		// Add to event log and/or do something with error
-		m_display.displayError(errorMessage);
+		m_display.displayErr(errorMessage);
+		if (!ignored)
+			System.exit(1);
+	}
+
+	public String getReadyText() {
+		String ret = "";
+		for(Racer r : m_run.getReady()) {
+			ret += r.getReadyStr() + "\n";
+		}
+		return ret;
+	}
+
+	public String getRacingText() {
+		String ret = "";
+		for(Racer r : m_run.getRacing()) {
+			ret += r.getRacingStr(getSysTime()) + "\n";
+		}
+		return ret;
+	}
+
+	public String getFinishedText() {
+		String ret = "";
+		for(Racer r : m_run.getFinished()) {
+			ret += r.getFinishedStr() + "\n";
+		}
+		return ret;
 	}
 
 	// POWER
@@ -267,14 +338,15 @@ public class Controller implements ActionListener {
 	private void power() {
 		if (running) {
 			running = false;
-			
 			display(Messages.powerDown);
+			m_display.powerOff();
 		} else {
 			// resets system to initial state
 			// Basically like a "restart" on a computer
 			running = true;
 			reset();
 			display(Messages.powerOn);
+			m_display.powerOn(this);
 		}
 	}
 
@@ -326,9 +398,9 @@ public class Controller implements ActionListener {
 			display_error(Messages.channelRangeError);
 			return;
 		}
-		
+
 		m_channels[channel - 1].setEnabled(!m_channels[channel - 1].isEnabled());
-		
+
 		if (m_channels[channel - 1].isEnabled()) {
 			display(Messages.enabledChannel + channel);
 		} else {
@@ -341,7 +413,6 @@ public class Controller implements ActionListener {
 	// States allowed: ALL
 	// Connect a sensor(of type specified) to the channel specified.
 	private void connect(Sensor sensor, int channel) {
-		// TODO Later
 		if (!running) {
 			display_error(Messages.systemNotRunning);
 			return;
@@ -364,7 +435,6 @@ public class Controller implements ActionListener {
 	// States allowed: ALL
 	// Disconnect a sensor from the channel specified.
 	private void disconnect(int channel) {
-		// TODO Later
 		if (!running) {
 			display_error(Messages.systemNotRunning);
 			return;
@@ -414,7 +484,7 @@ public class Controller implements ActionListener {
 
 		m_run = new Run(runID, m_comp, this);
 		m_state = ChronoState.RACING;
-		display(Messages.creatingRun);
+		display(Messages.creatingRun + runID);
 	}
 
 	// ENDRUN
@@ -431,9 +501,15 @@ public class Controller implements ActionListener {
 		}
 		m_run.endRun();
 		
+			ArrayList<Racer> toJson = m_run.getRacers();
+
+			for(Racer r: toJson){
+				upload(r);
+			}
+			
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
-		display(Messages.endingRun);
+		display(Messages.endingRun + runID++);
 	}
 
 	// PRINT <run>
@@ -444,16 +520,21 @@ public class Controller implements ActionListener {
 			display_error(Messages.systemNotRunning);
 			return;
 		}
-		
-		//Check if run is not ended, need to use run id to reference the run
 
-		for(Run r : runHistory) {
-			if(r.getID() == run) {
+		// Check if run is not ended, need to use run id to reference the run
+		boolean foundIt = false;
+		for (Run r : runHistory) {
+			if (r.getID() == run) {
+				//TODO possibly sort r.getRacers() Collections.sort(r.getRacer......
 				for (Racer x : r.getRacers()) {
-					m_printer.print(Messages.racerNumber + x.getNumber() + "\t" + Messages.racerTime + x.getTimer().toString());
+					m_printer.printLine(x.toString());
 				}
+				foundIt = true;
 				break;
 			}
+		}
+		if (!foundIt) {
+			display_error(Messages.runDoesNotExist);
 		}
 	}
 
@@ -467,38 +548,157 @@ public class Controller implements ActionListener {
 			return;
 		}
 		Gson g = new Gson();
-		for(Run r : runHistory) {
-			if(r.getID() == run) {
-				String out = g.toJson(r);
+		boolean foundIt = false;
+		for (Run r : runHistory) {
+			if (r.getID() == run) {
+				String out = g.toJson(r.getRacers());
+
 				try {
-					PrintWriter writer = new PrintWriter(run + ".json");
+					PrintWriter writer = new PrintWriter("RUN" + run + ".json");
 					writer.println(out);
 					writer.close();
-				}catch(Exception e){
+				} catch (Exception e) {
 					display_error(Messages.exportError + e.getMessage());
+					System.exit(1);
 				}
+				foundIt = true;
 				break;
 			}
 		}
+		if (!foundIt) {
+			display_error(Messages.runDoesNotExist);
+		}
 	}
+
+	//TODO: "Client" method that uploads ended run to server
+	private void upload(Racer r){
+		String content = "";
+		Gson g = new Gson();
+
+		try {
+
+			// Client will connect to this location
+			URL site = new URL("http://localhost:8000/sendresults");
+
+			//connect to the socket, server already has socket open
+			final HttpURLConnection conn = (HttpURLConnection) site.openConnection();
+
+			//now create a POST request
+			conn.setRequestMethod("POST");
+
+			//not sure what this does
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+
+			//creating output "channel"/data stream - client to server, output from client
+			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+
+			// build a JSON string of the race and add it to the package to be sent
+			content = "ADD:" + g.toJson(r);
+			//Packages it all up and sends to the server
+			// write out string to output buffer for message
+			out.writeBytes(content);
+			out.flush(); // cleans up the buffer
+			out.close(); // sends it to the server
+
+			//reads the response from the server after post, complete connection with input stream
+			InputStreamReader inputStr = new InputStreamReader(conn.getInputStream());
+
+			//creating the response from server
+			StringBuilder sb = new StringBuilder();
+
+			// read the characters from the request byte by byte and build up
+			// the Response
+			int nextChar;
+			while ((nextChar = inputStr.read()) > -1) {
+				sb = sb.append((char) nextChar);
+			}
+			System.out.println("Return String: " + sb);
+
+		} catch (UnknownHostException e) {
+			display_error(Messages.serverConnection);
+		} catch (ConnectException e) {
+			display_error(Messages.serverConnection);
+		} catch (IOException e){
+			display_error(Messages.serverConnection);
+		}
+
+	}
+
+
+	//TODO
+	//	private void HTMLExport(int run) {
+	//		if (!running) {
+	//			display_error(Messages.systemNotRunning);
+	//			return;
+	//		}
+	//		String html;
+	//		Gson g = new Gson();
+	//		boolean foundIt = false;
+	//		for (Run r : runHistory) {
+	//			if (r.getID() == run) {
+	//				// TODO: Error-causing POST Request
+	//				try {
+	//					// now create a POST request
+	//					conn.setRequestMethod("POST");
+	//					conn.setDoOutput(true);
+	//					conn.setDoInput(true);
+	//					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+	//
+	//					// build a string that contains JSON from console
+	//					html = g.toJson(r.getHTMLRun());
+	//
+	//					// write out string to output buffer for message
+	//					out.writeBytes(html);
+	//					out.flush(); // cleans up the buffer
+	//					out.close(); // sends it to the server
+	//				} catch (Exception f) {
+	//					f.printStackTrace();
+	//				}
+	//
+	//				foundIt = true;
+	//				break;
+	//			}
+	//		}
+	//		if (!foundIt) {
+	//			display_error(Messages.runDoesNotExist);
+	//		}
+	//	}
 
 	// NUM <number>
 	// States allowed: RACING
 	// Set <number> as the next competitor to start.
 	private void num(int number) {
-		if (!running) {
-			display_error(Messages.systemNotRunning);
-			return;
-		}
-		if (m_state != ChronoState.RACING) {
+
+		if(runHistory.isEmpty() && m_state != ChronoState.RACING){
 			display_error(Messages.runNotStarted);
 			return;
 		}
-		if (m_run.addRacer(new Racer(number))) {
-			display(Messages.addingRacer + number);
-		} else {
-			display_error(Messages.addingRacerError + number);
+		if (m_run.isGRPStartedAndFinished()) {
+			m_run.setGRPNumber(number);
+
+		} else if (!m_run.isGRPStarted()) {
+			if (m_run.addRacer(new Racer(number))) {
+				display(Messages.addingRacer + number);
+			} else {
+				display_error(Messages.addingRacerError + number);
+			}
 		}
+
+		//OLD CODE
+		//		if (!running) {
+		//			display_error(Messages.systemNotRunning);
+		//			return;
+		//		}
+		//		if (m_state != ChronoState.RACING) {
+		//			display_error(Messages.runNotStarted);
+		//			return;
+		//		}
+		//		if (m_run.addRacer(new Racer(number))) {
+		//			display(Messages.addingRacer + number);
+		//		} else {
+		//			display_error(Messages.addingRacerError + number);
+		//		}
 	}
 
 	// CLR <number>
@@ -530,6 +730,12 @@ public class Controller implements ActionListener {
 			display_error(Messages.systemNotRunning);
 			return;
 		}
+		if (m_state != ChronoState.RACING) {
+			display_error(Messages.runNotStarted);
+			return;
+		}
+
+		m_run.swap();
 	}
 
 	// DNF
@@ -566,11 +772,12 @@ public class Controller implements ActionListener {
 			return;
 		}
 
-		if (m_channels[channel - 1].isEnabled()) {
+		if (m_channels[channel - 1].isEnabled() && m_channels[channel - 1].isConnected()) {
 			display("Tigger channel: " + channel);
-			m_run.triggerChannel(m_channels[channel - 1], m_sysTime);
+			m_run.triggerChannel(m_channels[channel - 1], getSysTime());
 		} else {
-			display_error(Messages.channelDisabled + channel);
+			if(!m_channels[channel - 1].isEnabled()) display_error(Messages.channelDisabled + channel);
+			if(!m_channels[channel - 1].isConnected()) display_error(Messages.channelDisconnected + channel);
 		}
 
 	}
