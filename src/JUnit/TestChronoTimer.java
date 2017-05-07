@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import java.awt.event.ActionEvent;
 
+import Chrono.Channel;
 import Chrono.CommandLineDisplay;
 import Chrono.Controller;
 import Chrono.Display;
@@ -41,6 +42,28 @@ public class TestChronoTimer extends TestCase {
 		action("newrun");
 	}
 
+	public void testConn(){
+		action("power");
+		action("newrun");
+		action("num 33");
+		action("tog 1");
+		assertTrue(controller.getChannel(1).isEnabled());
+		action("conn eye 1");
+		assertTrue(controller.getChannel(1).isConnected());
+		assertNotSame(false, controller.getChannel(1).isConnected());
+		action("disc 1");
+		assertFalse(controller.getChannel(1).isConnected());
+		action("tog 1");
+		assertFalse(controller.getChannel(1).isEnabled());
+		action("conn eye 1");
+		assertTrue(controller.getChannel(1).isConnected());
+		action("tog 1");
+		assertTrue(controller.getChannel(1).isEnabled());
+		action("trig 1");
+		assertEquals(1, controller.getRun().getRunningQ().size());
+		
+		
+	}
 
 	protected void setUp() throws Exception {
 		super.setUp();

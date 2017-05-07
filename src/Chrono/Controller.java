@@ -61,7 +61,7 @@ public class Controller implements ActionListener {
 			}
 
 			String[] timeArgs = cmdArgs[1].split(":");
-			if (timeArgs.length < 3) {
+			if (timeArgs.length < 4) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
@@ -600,6 +600,9 @@ public class Controller implements ActionListener {
 	}
 	public Competition getComp(){
 		return m_comp;
+	}
+	public Channel getChannel(int c){
+		return m_channels[c-1];
 	}
 
 }
