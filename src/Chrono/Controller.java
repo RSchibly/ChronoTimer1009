@@ -24,14 +24,19 @@ public class Controller implements ActionListener {
 	}
 
 	public enum Competition {
-		IND("Individual"), PARIND("Parallel Individual"), GRP("Group"), PARGRP("Parallel Group");
+		IND("Individual", "IND"), PARIND("Parallel Individual", "PARIND"), GRP("Group", "GRP"), PARGRP("Parallel Group", "PARGRP");
 		private final String display;
-		private Competition(String s) {
-			display = s;
+		private final String abbreviation;
+		private Competition(String d, String a) {
+			display = d;
+			abbreviation = a;
 		}
 		@Override
 		public String toString() {
 			return display;
+		}
+		public String toShortStr(){
+			return abbreviation;
 		}
 	}
 
@@ -94,24 +99,16 @@ public class Controller implements ActionListener {
 				return;
 			}
 
-<<<<<<< HEAD
-			String[] timeArgs = cmdArgs[1].split(":");
-=======
 			// splits on ":" or "."
 			String[] timeArgs = cmdArgs[1].split(":|\\.");
->>>>>>> develop
 			if (timeArgs.length < 4) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
 			}
 
 			try {
-<<<<<<< HEAD
-				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]), Double.parseDouble(timeArgs[3]));
-=======
 				time(Integer.parseInt(timeArgs[0]), Integer.parseInt(timeArgs[1]), Double.parseDouble(timeArgs[2]),
 						Double.parseDouble(timeArgs[3]));
->>>>>>> develop
 			} catch (NumberFormatException ex) {
 				display_error(Messages.parseArgError + " \"" + e.getActionCommand() + "\"");
 				return;
@@ -799,17 +796,12 @@ public class Controller implements ActionListener {
 		if (number > 0)
 			display(Messages.cancelRacer + number);
 	}
-	public int getRunningQSize(){
-		return m_run.getRunningQ().size();
-	}
+	
 	public Run getRun(){
 		return m_run;
 	}
 	public Competition getComp(){
 		return m_comp;
-	}
-	public Channel getChannel(int c){
-		return m_channels[c-1];
 	}
 
 }

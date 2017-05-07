@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import java.awt.event.ActionEvent;
 
 import Chrono.Channel;
-import Chrono.CommandLineDisplay;
+import Chrono.Display;
 import Chrono.Controller;
 import Chrono.Display;
 import Chrono.Printer;
@@ -34,11 +34,11 @@ public class TestChronoTimer extends TestCase {
 	public void testType(){
 		action("power");
 		action("EVENT PARIND");
-		assertEquals("PARIND", controller.getComp().toString());
+		assertEquals("PARIND", controller.getComp().toShortStr());
 		action("event ind");
-		assertEquals("IND", controller.getComp().toString());
+		assertEquals("IND", controller.getComp().toShortStr());
 		action("event GRP");
-		assertEquals("GRP", controller.getComp().toString());
+		assertEquals("GRP", controller.getComp().toShortStr());
 		action("newrun");
 	}
 
@@ -60,16 +60,16 @@ public class TestChronoTimer extends TestCase {
 		action("tog 1");
 		assertTrue(controller.getChannel(1).isEnabled());
 		action("trig 1");
-		assertEquals(1, controller.getRun().getRunningQ().size());
+		assertEquals(1, controller.getRun().getRacing().size());
 		
 		
 	}
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		Display display = new CommandLineDisplay();
-		Printer printer = new Printer();
-		controller = new Controller(display, printer);
+		Display display = new Display(false);
+		Printer printer = new Printer(display);
+		controller = new Controller(display, printer, false);
 		id = ActionEvent.ACTION_FIRST;
 	}
 

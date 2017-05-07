@@ -39,21 +39,6 @@ public class Run {
 	public ArrayList<Racer> getRacers() {
 		return racers;
 	}
-<<<<<<< HEAD
-	
-	public LinkedList<Racer> getReadyQ(){
-		return lanes.get(numLanes-1).getReadyQ();
-	}
-	
-	public LinkedList<Racer> getRunningQ(){
-		return lanes.get(numLanes - 1).getRunningQ();
-	}
-	
-	public LinkedList<Racer> getFinishedQ(){
-		return lanes.get(numLanes - 1).getFinishedQ();
-	}
-	
-=======
 
 	public ArrayList<Racer> getReady() {
 		ArrayList<Racer> ret = new ArrayList<Racer>();
@@ -83,7 +68,6 @@ public class Run {
 		return lanes.get(laneNumber);
 	}
 
->>>>>>> develop
 	public int dnf() {
 		if (raceType == Competition.IND) {
 			return lanes.get(0).dnf();
