@@ -26,6 +26,7 @@ public final class Messages {
 	public static final String racerAlreadyExists = "Racer already exists.";
 	public static final String racerDoesNotExist = "Racer does not exist.";
 	public static final String runDoesNotExist = "The run ID specified does not exist.";
+	public static final String serverConnection = "There was an error connecting to the server.";
 	
 	//MESSAGES
 	public static final String powerOn = "Powering on...";

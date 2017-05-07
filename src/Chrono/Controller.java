@@ -608,11 +608,11 @@ public class Controller implements ActionListener {
 			System.out.println("Return String: " + sb);
 
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			display_error(Messages.serverConnection);
 		} catch (ConnectException e) {
-			e.printStackTrace();
+			display_error(Messages.serverConnection);
 		} catch (IOException e){
-			e.printStackTrace();
+			display_error(Messages.serverConnection);
 		}
 
 	}
