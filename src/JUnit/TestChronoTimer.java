@@ -61,8 +61,6 @@ public class TestChronoTimer extends TestCase {
 		assertTrue(controller.getChannel(1).isEnabled());
 		action("trig 1");
 		assertEquals(1, controller.getRun().getRacing().size());
-		
-		
 	}
 
 	protected void setUp() throws Exception {
