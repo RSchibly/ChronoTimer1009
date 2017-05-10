@@ -769,12 +769,12 @@ public class Controller implements ActionListener {
 			return;
 		}
 
-		if (m_channels[channel - 1].isEnabled() && m_channels[channel - 1].isConnected()) {
+		if (m_channels[channel - 1].isEnabled()) { // && m_channels[channel - 1].isConnected()) { //This was the previous code to force connected sensor for trig
 			display("Tigger channel: " + channel);
 			m_run.triggerChannel(m_channels[channel - 1], getSysTime());
 		} else {
 			if(!m_channels[channel - 1].isEnabled()) display_error(Messages.channelDisabled + channel);
-			if(!m_channels[channel - 1].isConnected()) display_error(Messages.channelDisconnected + channel);
+			//if(!m_channels[channel - 1].isConnected()) display_error(Messages.channelDisconnected + channel);
 		}
 
 	}

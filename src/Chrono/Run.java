@@ -32,8 +32,7 @@ public class Run {
 		this.racers = new ArrayList<Racer>();
 		this.lanes = new ArrayList<Lane>();
 		this.lanes.add(new Lane(numLanes++, parentController));
-		if (raceType == Competition.PARIND)
-			this.lanes.add(new Lane(numLanes++, parentController));
+		if (raceType == Competition.PARIND) this.lanes.add(new Lane(numLanes++, parentController));
 	}
 
 	public ArrayList<Racer> getRacers() {
@@ -120,7 +119,8 @@ public class Run {
 				}
 				isParStrt = true;
 				parRunning.addAll(lanes.get(0).getRunningQ());
-			} else if (isParStrt && lanes.get(0).getRunningQ().size() > 0 && parRunning.size() > 0) {
+			} else if (isParStrt && lanes.get(0).getRunningQ().size() > 0 && parRunning.size() > 0
+					&& c.getChannelIndex() - 1 < parRunning.size()) {
 				if (lanes.get(0).getRunningQ().contains(parRunning.get(c.getChannelIndex() - 1))) {
 					int temp = -1;
 					for (int i = 0; i < lanes.get(0).getRunningQ().size(); i++) {
@@ -153,8 +153,7 @@ public class Run {
 	}
 
 	public boolean addRacer(Racer racer) {
-		if (racers.size() > 7)
-			return false;
+		if (racers.size() > 7) return false;
 		if (racers.contains(racer)) {
 			parentController.display_error(Messages.racerAlreadyExists);
 			return false;
@@ -235,7 +234,6 @@ public class Run {
 	public int getID() {
 		return id;
 	}
-	
 
 	public String getHTMLRun() {
 		String html = "";
