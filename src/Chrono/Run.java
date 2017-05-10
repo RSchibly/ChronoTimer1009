@@ -253,5 +253,10 @@ public class Run {
 			return;
 		}
 	}
+	
+	public RunData toRunData() {
+		RunData ret = new RunData(id, raceType, racers);
+		return ret;
+	}
 
 }

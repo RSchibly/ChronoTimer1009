@@ -195,7 +195,6 @@ public class Controller implements ActionListener {
 		else if (e.getActionCommand().startsWith("PRINT")) {
 			// PRINT <run>
 			String[] cmdArgs = e.getActionCommand().split(" ");
-			// TODO later: Default no args to current run if exists
 			if (cmdArgs.length < 2) {
 				display_error(Messages.numArgError + " \"" + e.getActionCommand() + "\"");
 				return;
@@ -498,11 +497,7 @@ public class Controller implements ActionListener {
 		}
 		m_run.endRun();
 		
-			ArrayList<Racer> toJson = m_run.getRacers();
-
-			for(Racer r: toJson){
-				upload(r);
-			}
+		uploadRun(m_run);
 			
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
@@ -522,7 +517,6 @@ public class Controller implements ActionListener {
 		boolean foundIt = false;
 		for (Run r : runHistory) {
 			if (r.getID() == run) {
-				//TODO possibly sort r.getRacers() Collections.sort(r.getRacer......
 				for (Racer x : r.getRacers()) {
 					m_printer.printLine(x.toString());
 				}
@@ -539,7 +533,6 @@ public class Controller implements ActionListener {
 	// States allowed: INITIAL
 	// Export the run specified as JSON to file "RUN<"+runID+">.json"
 	private void export(int run) {
-		// TODO Bug Testing
 		if (!running) {
 			display_error(Messages.systemNotRunning);
 			return;
@@ -566,9 +559,9 @@ public class Controller implements ActionListener {
 			display_error(Messages.runDoesNotExist);
 		}
 	}
-
-	//TODO: "Client" method that uploads ended run to server
-	private void upload(Racer r){
+	
+	
+	private void uploadRun(Run r){
 		String content = "";
 		Gson g = new Gson();
 
@@ -591,7 +584,7 @@ public class Controller implements ActionListener {
 			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
 
 			// build a JSON string of the race and add it to the package to be sent
-			content = "ADD:" + g.toJson(r);
+			content = "ADD:" + g.toJson(r.toRunData());
 			//Packages it all up and sends to the server
 			// write out string to output buffer for message
 			out.writeBytes(content);
@@ -622,45 +615,7 @@ public class Controller implements ActionListener {
 
 	}
 
-
-	//TODO
-	//	private void HTMLExport(int run) {
-	//		if (!running) {
-	//			display_error(Messages.systemNotRunning);
-	//			return;
-	//		}
-	//		String html;
-	//		Gson g = new Gson();
-	//		boolean foundIt = false;
-	//		for (Run r : runHistory) {
-	//			if (r.getID() == run) {
-	//				// TODO: Error-causing POST Request
-	//				try {
-	//					// now create a POST request
-	//					conn.setRequestMethod("POST");
-	//					conn.setDoOutput(true);
-	//					conn.setDoInput(true);
-	//					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-	//
-	//					// build a string that contains JSON from console
-	//					html = g.toJson(r.getHTMLRun());
-	//
-	//					// write out string to output buffer for message
-	//					out.writeBytes(html);
-	//					out.flush(); // cleans up the buffer
-	//					out.close(); // sends it to the server
-	//				} catch (Exception f) {
-	//					f.printStackTrace();
-	//				}
-	//
-	//				foundIt = true;
-	//				break;
-	//			}
-	//		}
-	//		if (!foundIt) {
-	//			display_error(Messages.runDoesNotExist);
-	//		}
-	//	}
+	
 
 	// NUM <number>
 	// States allowed: RACING
@@ -682,20 +637,6 @@ public class Controller implements ActionListener {
 			}
 		}
 
-		//OLD CODE
-		//		if (!running) {
-		//			display_error(Messages.systemNotRunning);
-		//			return;
-		//		}
-		//		if (m_state != ChronoState.RACING) {
-		//			display_error(Messages.runNotStarted);
-		//			return;
-		//		}
-		//		if (m_run.addRacer(new Racer(number))) {
-		//			display(Messages.addingRacer + number);
-		//		} else {
-		//			display_error(Messages.addingRacerError + number);
-		//		}
 	}
 
 	// CLR <number>
@@ -722,7 +663,6 @@ public class Controller implements ActionListener {
 	// States allowed: -
 	// This is a stupid command.
 	private void swap() {
-		// TODO Later
 		if (!running) {
 			display_error(Messages.systemNotRunning);
 			return;

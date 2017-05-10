@@ -2,6 +2,8 @@
  * Simple HTTP handler for testing ChronoTimer
  */
 package Server;
+import Chrono.RunData;
+import Chrono.Racer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +26,7 @@ public class ChronoServer {
 	static String localResponse = "";
 	static boolean gotMessageFlag = false;
 
-	static ServerRacer newRacer;
-	static ArrayList<ServerRacer> rList = new ArrayList<ServerRacer>();
+	static ArrayList<RunData> rList = new ArrayList<RunData>();
 	static String fileName = "server.txt";
 	static Scanner scan;
 	static NameMap nameMap = new NameMap();
@@ -111,29 +112,31 @@ public class ChronoServer {
 			response = // TODO: Response+= previously, now changed
 					"<!DOCTYPE html>  " + "<html>" + "<head>"
 							+ "<link href=\"/displayresults/css\" rel=\"stylesheet\" type=\"text/css\">" + "</head>" + "<style>"
-							+ "</style> <body>" + "<h2>ChronoTimer Race Results</h2>" + "	<table>"
-							+ "   <tr class=\"header\">" + "       <th>Time</th>" + "       <th>Number</th>"
-							+ "       <th>Name</th>" +  "</tr>";
-			// TODO
-
-			// Add HTML Response
-			// String response = "Begin of response\n";
-			// set up the header
-
-			System.out.println(response);
-
-			boolean oddRacer = true;
-			for (ServerRacer r : rList) {
-				if (oddRacer) {
-					response += "<tr class=\"Oemployee\">";
-					oddRacer = false;
-				} else {
-					response += "<tr class=\"Eemployee\">";
-					oddRacer = true;
+							+ "</style> <body>";
+			
+			//Now that we have begun the body, lets add our tables:
+			for (RunData run : rList) {
+				response += "<h2>ChronoTimer Race #" + run.getId() + " Results</h2>" + "	<table>"
+						+ "   <tr class=\"header\">" + "       <th>Time</th>" + "       <th>Number</th>"
+						+ "       <th>Name</th>" +  "</tr>";
+				
+				boolean oddRacer = true;
+				for (Racer racer : run.getRacers()) {
+					if (oddRacer) {
+						response += "<tr class=\"Oemployee\">";
+						oddRacer = false;
+					} else {
+						response += "<tr class=\"Eemployee\">";
+						oddRacer = true;
+					}
+					response += "<td>" + racer.getTimer() + "</td><td>"
+							+ racer.getNumber() + "</td><td>" 
+							+ nameMap.get(racer.getNumber()) + "</td>" + "</tr>";
 				}
-				response += r.HTMLRacer() + "</tr>";
+				response += "	</table><br><br>";
 			}
-			response += "	</table>" + "</body>" + "</html>";
+			
+			response += "</body>" + "</html>";
 
 			// write out the response
 			t.sendResponseHeaders(200, response.length());
@@ -174,12 +177,10 @@ public class ChronoServer {
 			if (sharedResponse.substring(0, 3).equals("ADD")) { // ADD response
 				sharedResponse = sharedResponse.substring(4);
 				
-				ServerRacer r = g.fromJson(sharedResponse, new TypeToken<ServerRacer>(){
-				}.getType());
-				
-				if(nameMap.containsKey(r.getBib())){
-					r.setName(nameMap.get(r.getBib()));
-				}
+//				ServerRacer r = g.fromJson(sharedResponse, new TypeToken<ServerRacer>(){
+//				}.getType());
+				RunData r = g.fromJson(sharedResponse, new TypeToken<RunData>(){
+					}.getType());
 				
 				rList.add(r);
 

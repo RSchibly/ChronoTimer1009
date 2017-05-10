@@ -39,6 +39,7 @@ public class NameMap {
 	}
 
 	public String get(int bib) {
+		if(!containsKey(bib)) return "Anonymous";
 		for(int i = 0; i < bibList.size(); i++){
 			if(bibList.get(i) == (bib))
 				return nameList.get(i);
