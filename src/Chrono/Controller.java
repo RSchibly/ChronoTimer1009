@@ -497,7 +497,7 @@ public class Controller implements ActionListener {
 		}
 		m_run.endRun();
 		
-		uploadRun(m_run);
+		upload(m_run);
 			
 		runHistory.add(m_run);
 		m_state = ChronoState.INITIAL;
@@ -541,7 +541,7 @@ public class Controller implements ActionListener {
 		boolean foundIt = false;
 		for (Run r : runHistory) {
 			if (r.getID() == run) {
-				String out = g.toJson(r.getRacers());
+				String out = g.toJson(r.toRunData());
 
 				try {
 					PrintWriter writer = new PrintWriter("RUN" + run + ".json");
@@ -561,7 +561,7 @@ public class Controller implements ActionListener {
 	}
 	
 	
-	private void uploadRun(Run r){
+	private void upload(Run r){
 		String content = "";
 		Gson g = new Gson();
 

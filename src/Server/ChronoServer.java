@@ -177,8 +177,6 @@ public class ChronoServer {
 			if (sharedResponse.substring(0, 3).equals("ADD")) { // ADD response
 				sharedResponse = sharedResponse.substring(4);
 				
-//				ServerRacer r = g.fromJson(sharedResponse, new TypeToken<ServerRacer>(){
-//				}.getType());
 				RunData r = g.fromJson(sharedResponse, new TypeToken<RunData>(){
 					}.getType());
 				
